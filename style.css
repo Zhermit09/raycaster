@@ -1,0 +1,24 @@
+html {
+  padding: 0%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background-color: gray;
+}
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0%;
+  background-color: yellow;
+}
+
+#myCanvas {
+  margin: 0%;
+  padding: 0;
+  background-color: rgb(117, 117, 117);
+  position: absolute;
+  left: 0;
+  top: 0;
+   
+}
