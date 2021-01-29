@@ -9,9 +9,9 @@ ctx.canvas.height = window.innerHeight;
 const times = [];
 let fps;
 
-let px = 100;
-let py = 100;
-let pa = 1.5* Math.PI;
+let px = 300;
+let py = 250;
+let pa = 1.5 * Math.PI;
 let pDx = Math.cos(pa);
 let pDy = Math.sin(pa);
 
@@ -75,10 +75,10 @@ let mapX = 8,
   mapS = 64;
 let map = [
   ["@", "@", "@", "@", "@", "@", "@", "@"],
-  ["@", "-", "@", "-", "-", "-", "-", "@"],
-  ["@", "-", "@", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "@", "@", "-", "@"],
-  ["@", "-", "-", "-", "-", "@", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
   ["@", "-", "-", "-", "-", "-", "-", "@"],
   ["@", "-", "-", "-", "-", "-", "-", "@"],
   ["@", "@", "@", "@", "@", "@", "@", "@"],
@@ -121,72 +121,79 @@ function rotation(rot) {
 
 let ra = pa;
 let diffY;
+let diffX;
 let rayY;
 let rayX;
 let oY;
 let oX;
-let mrX = Math.floor(rayX / mapS);
-let mrY = rayY / mapS - 1;
+
 let dof;
 
 function ray() {
   diffY = py % mapS;
   dof = 0;
-  
 
   if (pa > Math.PI) {
     rayY = py - diffY;
     rayX = (-1 / Math.tan(pa)) * (py - rayY) + px;
     oY = -mapS;
+    oX = (mapS / (rayY - py)) * (px - rayX);
   } else if (pa < Math.PI) {
     rayY = py + (mapS - diffY);
     rayX = (1 / Math.tan(pa)) * (rayY - py) + px;
     oY = mapS;
+    oX = (mapS / (rayY - py)) * (rayX - px);
   } else if (pa == 0 || pa == Math.PI) {
     rayX = px;
     rayY = py;
     dof = 8;
   }
-
+  //left
   if (0.5 * Math.PI < pa && 1.5 * Math.PI) {
-    oX = -mapS;
+    //diffX = px % mapS;
+    //let diffRay = rayX % mapS;
+    console.log(rayX, px);
+
+    //-oY*(-1/Math.tan(pa));
   } else {
-    oX = mapS;
   }
+  let mrX = Math.floor(rayX / mapS);
+  let mrY = rayY / mapS - 1;
 
   //console.log("Map x = " + rayX + " Map y = " + rayY);
 
   //console.log("pdx = " + pDx + " pdy = " + pDy);
 
-  console.log(
+  /*  console.log(
     "Map x = " +
       mrX +
       " \nMap y = " +
       mrY +
       "\nWall yes/no: " +
-      map[mrY][mrX] +
+   //   map[mrY][mrX] +
       "\n pa =" +
-      pa
-  );
+      pa +
+      "\n x ="+rayX + "\n y ="+rayY
+  );*/
 
-  console.log("Tile bef: " + map[mrY][mrX]);
-  for (let i = dof; i < 8; i++) {
-    console.log("Tile in: " + map[mrY][mrX]);
-    if (map[mrY][mrX] == "-") {
-      rayX += 0;
-      rayY += -64;
+  //  console.log("Tile bef: " + map[mrY][mrX]);
+  while (dof < 16) {
+    //   console.log("Tile in: " + map[mrY][mrX]);
+    if (map[mrY][mrX] == "@") {
+      //  console.log("ray stopped");
       mrX = Math.floor(rayX / mapS);
       mrY = rayY / mapS - 1;
-      i++;
-      console.log("Im here");
-    } else {
-      console.log("Tile af: " + map[mrY][mrX]);
-      i = 8;
-
-      console.log("ray stopped");
-      //  mrX = Math.floor(rayX / mapS);
-      // mrY = rayY / mapS - 1;
       map[mrY][mrX];
+      dof = 16;
+      console.log("pa: " + pa);
+    } else {
+      rayY += oY;
+      rayX += oX;
+      //  console.log("\n x =" + rayX + "\n y =" + rayY);
+      mrX = Math.floor(rayX / mapS);
+      mrY = rayY / mapS - 1;
+      dof++;
+      //    console.log("Tile af: " + map[mrY][mrX]);
     }
   }
   ctx.strokeStyle = "red";
