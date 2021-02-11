@@ -2,6 +2,7 @@
 "use strict";
 
 let c = document.getElementById("myCanvas");
+// @ts-ignore
 let ctx = c.getContext("2d");
 
 ctx.canvas.width = window.innerWidth;
@@ -12,7 +13,7 @@ let fps;
 
 let px = 300;
 let py = 150;
-let pa = 2 * Math.PI;
+let pa = 1.85 * Math.PI;
 let pDx = Math.cos(pa);
 let pDy = Math.sin(pa);
 
@@ -73,9 +74,9 @@ let mapX = 8,
 let map = [
   ["@", "@", "@", "@", "@", "@", "@", "@"],
   ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "@", "-", "-", "-", "-", "@"],
   ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "@", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "@", "-", "-", "-", "-", "@"],
   ["@", "-", "-", "-", "-", "-", "-", "@"],
   ["@", "-", "-", "-", "-", "-", "-", "@"],
   ["@", "@", "@", "@", "@", "@", "@", "@"],
@@ -123,69 +124,54 @@ let rayY;
 let rayX;
 let oY;
 let oX;
-let direction;
 let dof;
+let directionY = 0;
+let yRayY;
+let yRayX;
+let xRayY;
+let xRayX;
 
 function ray() {
   diffY = py % mapS;
   dof = 0;
   ra = pa;
-  /*
-    if (ra > Math.PI) {
-      rayY = py - diffY;
-      rayX = (-1 / Math.tan(ra)) * (py - rayY) + px;
-      oY = -mapS;
-      oX = (mapS / (rayY - py)) * (px - rayX);
-      direction = -1;
-    } else if (ra < Math.PI) {
-      rayY = py + (mapS - diffY);
-      rayX = (1 / Math.tan(ra)) * (rayY - py) + px;
-      oY = mapS;
-      oX = (mapS / (rayY - py)) * (rayX - px);
-      direction = 0;
-    } else if (ra == 0 || ra == Math.PI) {
-      rayX = px;
-      rayY = py;
-      dof = 8;
-      direction = 0;
-    }
-    */
-  //left
-  diffX = px % mapS;
-  if (0.5 * Math.PI < ra && ra < 1.5 * Math.PI) {
-    rayX = px - diffX;
-    rayY = -1 * Math.tan(ra) * (px - rayX) + py;
-    oX = -mapS;
-    oY = (mapS / (px - rayX)) * (rayY - py);
-    // console.log("left " + rayX)
-  } else if (0.5 * Math.PI > ra || ra > 1.5 * Math.PI) {
-    rayX = px + (mapS - diffX);
-    rayY = 1 * Math.tan(ra) * (rayX - px) + py;
-    oX = mapS;
-    oY = (mapS / (rayX - px)) * (rayY - py);
-    // console.log("right");
-  } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
-    console.log("stop");
+
+  if (ra > Math.PI) {
+    rayY = py - diffY;
+    rayX = (-1 / Math.tan(ra)) * (py - rayY) + px;
+    oY = -mapS;
+    oX = (mapS / (rayY - py)) * (px - rayX);
+    directionY = -1;
+  } else if (ra < Math.PI) {
+    rayY = py + (mapS - diffY);
+    rayX = (1 / Math.tan(ra)) * (rayY - py) + px;
+    oY = mapS;
+    oX = (mapS / (rayY - py)) * (rayX - px);
+    directionY = 0;
+  } else if (ra == 0 || ra == Math.PI) {
     rayX = px;
     rayY = py;
     dof = 8;
-    direction = 0;
+    directionY = 0;
   }
-  /* ctx.strokeStyle = "blue";
-   ctx.beginPath();
-   ctx.moveTo(px, py);
-   ctx.lineTo(rayX, rayY);
-   ctx.lineWidth = 2;
-   ctx.stroke();*/
-  //prob could just do with int cut feature
+
+  diffX = px % mapS;
+
   let mrX = Math.floor(rayX / mapS);
   let mrY = Math.floor(rayY / mapS);
-  console.log(map[mrY][mrX], mrX, mrY);
-  while (dof < 3) {
-    if (-1 < mrX && -1 < mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] == "@") {
-      console.log("stop");
+  //console.log(map[mrY][mrX], mrX, mrY);
+
+  while (dof < 8) {
+    if (
+      0 <= mrX &&
+      0 <= mrY &&
+      mrX < mapX &&
+      mrY < mapY &&
+      map[mrY][mrX] == "@"
+    ) {
+      //   console.log("stop");
       mrX = Math.floor(rayX / mapS);
-      mrY = Math.floor(rayY / mapS) + direction;
+      mrY = Math.floor(rayY / mapS) + directionY;
       map[mrY][mrX];
       dof = 8;
     } else {
@@ -193,26 +179,107 @@ function ray() {
       rayX += oX;
 
       mrX = Math.floor(rayX / mapS);
-      mrY = Math.floor(rayY / mapS) + direction;
+      mrY = Math.floor(rayY / mapS) + directionY;
       dof++;
     }
+    //  console.log(rayY);
   }
+  yRayY = rayY;
+  yRayX = rayX;
 
-  // console.log(rayX + " " + rayY);
-  // console.log("\n" + mrX + " " + mrY);
-  ctx.strokeStyle = "red";
-  ctx.beginPath();
-  ctx.moveTo(px, py);
-  ctx.lineTo(rayX, rayY);
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.fillStyle = "lime";
+  /* ctx.fillStyle = "blue";
   ctx.fillRect(
     mrX * (mapS - 1) + mrX,
     mrY * (mapS - 1) + mrY,
     mapS - 1,
     mapS - 1
+  );*/
+
+  dof = 0;
+  let directionX = 0;
+
+  if (0.5 * Math.PI < ra && ra < 1.5 * Math.PI) {
+    rayX = px - diffX;
+    rayY = -1 * Math.tan(ra) * (px - rayX) + py;
+    oX = -mapS;
+    oY = (mapS / (px - rayX)) * (rayY - py);
+    directionX = -1;
+    //  console.log("left " + rayX +" ra " + ra)
+  } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
+    rayX = px + (mapS - diffX);
+    rayY = 1 * Math.tan(ra) * (rayX - px) + py;
+    oX = mapS;
+    oY = (mapS / (rayX - px)) * (rayY - py);
+    // console.log("right");
+  } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
+    //  console.log("stop");
+    rayX = px;
+    rayY = py;
+    dof = 8;
+    directionX = 0;
+  }
+
+  mrX = Math.floor(rayX / mapS) + directionX;
+  mrY = Math.floor(rayY / mapS);
+
+  while (dof < 8) {
+    if (
+      0 <= mrX &&
+      0 <= mrY &&
+      mrX < mapX &&
+      mrY < mapY &&
+      map[mrY][mrX] == "@"
+    ) {
+      //      console.log("stop");
+      mrX = Math.floor(rayX / mapS) + directionX;
+      mrY = Math.floor(rayY / mapS);
+      map[mrY][mrX];
+      dof = 8;
+    } else {
+      rayY += oY;
+      rayX += oX;
+
+      mrX = Math.floor(rayX / mapS) + directionX;
+      mrY = Math.floor(rayY / mapS);
+      dof++;
+    }
+  }
+  xRayY = rayY;
+  xRayX = rayX;
+  let yLenght = Math.pow(
+    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px),
+    0.5
   );
+  let xLenght = Math.pow(
+    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px),
+    0.5
+  );
+
+  if (yLenght > xLenght) {
+    ctx.strokeStyle = "red";
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(xRayX, xRayY);
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  } else if (yLenght < xLenght) {
+    ctx.strokeStyle = "#04d9ff";
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(yRayX, yRayY);
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = "pink";
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(xRayX, xRayY);
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+
+  console.log(xLenght + " " + yLenght);
+  // console.log("\n" + mrX + " " + mrY);
 
   // console.log("Ray x: " + rayX, "Ray y: " + rayY);
 }
