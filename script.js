@@ -16,6 +16,7 @@ let py = 250;
 let pa = 1.5 * Math.PI;
 let pDx = Math.cos(pa);
 let pDy = Math.sin(pa);
+let dgr = Math.PI / 180;
 
 let mapX = 8, mapY = 8, mapS = 64, map = [
   ["@", "@", "@", "@", "@", "@", "@", "@"],
@@ -74,9 +75,9 @@ function walk(minPlus, strenght) {
 function draw() {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   mapDraw();
-  drawPlayer();
   drawFPS();
   ray();
+  drawPlayer();
 }
 
 function drawPlayer() {
@@ -91,9 +92,6 @@ function drawFPS() {
   ctx.font = "17px Arial";
   ctx.fillText("FPS: " + fps, ctx.canvas.width - 70, 25);
 }
-
-
-
 
 function mapDraw() {
   ctx.fillStyle = "black";
@@ -113,140 +111,139 @@ function mapDraw() {
 
 function rotation(rot) {
   pa += rot;
-  if (pa >= 2 * Math.PI) {
-    pa -= 2 * Math.PI;
-  } else if (pa <= 0) {
-    pa += 2 * Math.PI;
-  }
+  pa = angleMax(pa);
   pDy = Math.sin(pa);
   pDx = Math.cos(pa);
 }
 
+function angleMax(radian) {
+  if (radian >= 2 * Math.PI) {
+    radian -= 2 * Math.PI;
+  } else if (radian <= 0) {
+    radian += 2 * Math.PI;
+  }
+  return radian;
+}
+
+let rayY;
+let rayX;
+let oY;
+let oX;
 
 
+let mrX;
+let mrY;
 
 let yRayY;
 let yRayX;
+
 let xRayY;
 let xRayX;
 
+let finalDistance;
+
+
 function ray() {
-  let diffY = py % mapS;
-  let dof = 0;
-  let ra = pa;
-  let directionY = 0;
-  let rayY;
-  let rayX;
-  let oY;
-  let oX;
+  let ra = pa - (dgr * 45);
+  ra = angleMax(ra);
 
-
-  if (ra > Math.PI) {
-    rayY = py - diffY;
-    rayX = (-1 / Math.tan(ra)) * (py - rayY) + px;
-    oY = -mapS;
-    oX = (mapS / (rayY - py)) * (px - rayX);
-    directionY = -1;
-  } else if (ra < Math.PI) {
-    rayY = py + (mapS - diffY);
-    rayX = (1 / Math.tan(ra)) * (rayY - py) + px;
-    oY = mapS;
-    oX = (mapS / (rayY - py)) * (rayX - px);
-    directionY = 0;
-  } else if (ra == 0 || ra == Math.PI) {
-    rayX = px;
-    rayY = py;
-    dof = 8;
-    directionY = 0;
-  }
-
-  let diffX = px % mapS;
-
-  let mrX = Math.floor(rayX / mapS);
-  let mrY = Math.floor(rayY / mapS) + directionY;
-
-  while (dof < 8) {
-    if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] == "@"
-    ) {
+  for (let r = 0; r < 90; r++) {
+    let dof = 0;
+    let diffY = py % mapS;
+    let directionY;
+    //Combine y and x ray checker togheter
+    if (ra > Math.PI) {
+      rayY = py - diffY;
+      rayX = (-1 / Math.tan(ra)) * (py - rayY) + px;
+      oY = -mapS;
+      oX = (mapS / (rayY - py)) * (px - rayX);
+      directionY = -1;
+    } else if (ra < Math.PI) {
+      rayY = py + (mapS - diffY);
+      rayX = (1 / Math.tan(ra)) * (rayY - py) + px;
+      oY = mapS;
+      oX = (mapS / (rayY - py)) * (rayX - px);
+      directionY = 0;
+    } else if (ra == 0 || ra == Math.PI) {
+      rayX = px;
+      rayY = py;
       dof = 8;
-      mrX = Math.floor(rayX / mapS);
-      mrY = Math.floor(rayY / mapS) + directionY;
-      map[mrY][mrX];
-
-    } else {
-      dof++;
-      rayY += oY;
-      rayX += oX;
-
-      mrX = Math.floor(rayX / mapS);
-      mrY = Math.floor(rayY / mapS) + directionY;
-
+      directionY = 0;
     }
-  }
-  yRayY = rayY;
-  yRayX = rayX;
+    mrX = Math.floor(rayX / mapS);
+    mrY = Math.floor(rayY / mapS) + directionY;
 
-  dof = 0;
-  let directionX = 0;
+    wall(dof, 0, directionY);
 
-  if (0.5 * Math.PI < ra && ra < 1.5 * Math.PI) {
-    rayX = px - diffX;
-    rayY = -1 * Math.tan(ra) * (px - rayX) + py;
-    oX = -mapS;
-    oY = (mapS / (px - rayX)) * (rayY - py);
-    directionX = -1;
-  } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
-    rayX = px + (mapS - diffX);
-    rayY = 1 * Math.tan(ra) * (rayX - px) + py;
-    oX = mapS;
-    oY = (mapS / (rayX - px)) * (rayY - py);
-  } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
-    rayX = px;
-    rayY = py;
-    dof = 8;
-    directionX = 0;
-  }
-  mrX = Math.floor(rayX / mapS) + directionX;
-  mrY = Math.floor(rayY / mapS);
+    yRayY = rayY;
+    yRayX = rayX;
 
-  while (dof < 8) {
-    if (
-      0 <= mrX &&
-      0 <= mrY &&
-      mrX < mapX &&
-      mrY < mapY &&
-      map[mrY][mrX] == "@"
-    ) {
-      //      console.log("stop");
-      mrX = Math.floor(rayX / mapS) + directionX;
-      mrY = Math.floor(rayY / mapS);
-      map[mrY][mrX];
+    //----------------------------------------------
+    dof = 0;
+
+    let directionX = 0;
+    let diffX = px % mapS;
+
+    if (0.5 * Math.PI < ra && ra < 1.5 * Math.PI) {
+      rayX = px - diffX;
+      rayY = -1 * Math.tan(ra) * (px - rayX) + py;
+      oX = -mapS;
+      oY = (mapS / (px - rayX)) * (rayY - py);
+      directionX = -1;
+    } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
+      rayX = px + (mapS - diffX);
+      rayY = 1 * Math.tan(ra) * (rayX - px) + py;
+      oX = mapS;
+      oY = (mapS / (rayX - px)) * (rayY - py);
+    } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
+      rayX = px;
+      rayY = py;
       dof = 8;
-    } else {
-      rayY += oY;
-      rayX += oX;
-
-      mrX = Math.floor(rayX / mapS) + directionX;
-      mrY = Math.floor(rayY / mapS);
-      dof++;
+      directionX = 0;
     }
+    mrX = Math.floor(rayX / mapS) + directionX;
+    mrY = Math.floor(rayY / mapS);
+
+    wall(dof, directionX, 0);
+
+    xRayY = rayY;
+    xRayX = rayX;
+
+    longestRay();
+    ra += dgr;
+    ra = angleMax(ra);
   }
-  xRayY = rayY;
-  xRayX = rayX;
-  let yLenght = Math.pow(
-    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px),
-    0.5
-  );
-  let xLenght = Math.pow(
-    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px),
-    0.5
-  );
-longest(yLenght, xLenght);
-  
+}
+  function wall(dof, dX, dY) {
+    while (dof < 8) {
+      if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] == "@"
+      ) {
+        dof = 8;
+        mrX = Math.floor(rayX / mapS) + dX;
+        mrY = Math.floor(rayY / mapS) + dY;
+        map[mrY][mrX];
+
+      } else {
+        dof++;
+        rayY += oY;
+        rayX += oX;
+
+        mrX = Math.floor(rayX / mapS) + dX;
+        mrY = Math.floor(rayY / mapS) + dY;
+      }
+  }
 }
 
-function longest(yLenght, xLenght){
-  if (yLenght > xLenght) {
+function longestRay() {
+  let yLenght = Math.pow(
+    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px), 0.5);
+  let xLenght = Math.pow(
+    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px), 0.5);
+
+  if (yLenght >= xLenght) {
+    
+    finalDistance = xLenght;
+
     ctx.strokeStyle = "red";
     ctx.beginPath();
     ctx.moveTo(px, py);
@@ -254,17 +251,13 @@ function longest(yLenght, xLenght){
     ctx.lineWidth = 3;
     ctx.stroke();
   } else if (yLenght < xLenght) {
+
+    finalDistance = yLenght;
+
     ctx.strokeStyle = "#04d9ff";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(yRayX, yRayY);
-    ctx.lineWidth = 3;
-    ctx.stroke();
-  } else {
-    ctx.strokeStyle = "pink";
-    ctx.beginPath();
-    ctx.moveTo(px, py);
-    ctx.lineTo(xRayX, xRayY);
     ctx.lineWidth = 3;
     ctx.stroke();
   }
