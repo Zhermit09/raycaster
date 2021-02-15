@@ -7,6 +7,8 @@ let ctx = c.getContext("2d");
 
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
+//ctx.imageSmoothingEnabled = true;
+
 
 const times = [];
 let fps;
@@ -18,16 +20,19 @@ let pDx = Math.cos(pa);
 let pDy = Math.sin(pa);
 let dgr = Math.PI / 180;
 
-let mapX = 8, mapY = 8, mapS = 64, map = [
-  ["@", "@", "@", "@", "@", "@", "@", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "@", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "@", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "@", "@", "@", "@", "@", "@", "@"],
-];
+let mapX = 8,
+  mapY = 8,
+  mapS = 64,
+  map = [
+    ["@", "@", "@", "@", "@", "@", "@", "@"],
+    ["@", "-", "-", "-", "-", "-", "-", "@"],
+    ["@", "-", "@", "-", "-", "-", "-", "@"],
+    ["@", "-", "-", "-", "-", "-", "-", "@"],
+    ["@", "-", "@", "-", "-", "-", "-", "@"],
+    ["@", "-", "-", "-", "-", "-", "-", "@"],
+    ["@", "-", "-", "-", "-", "-", "-", "@"],
+    ["@", "@", "@", "@", "@", "@", "@", "@"],
+  ];
 
 function refreshLoop() {
   window.requestAnimationFrame(() => {
@@ -47,7 +52,7 @@ function animate() {
   draw();
 }
 
-window.addEventListener('keydown', event => {
+window.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "ArrowLeft":
       rotation(-Math.PI / 50);
@@ -68,8 +73,8 @@ window.addEventListener('keydown', event => {
   }
 });
 function walk(minPlus, strenght) {
-  px += (minPlus * pDx * strenght);
-  py += (minPlus * pDy * strenght);
+  px += minPlus * pDx * strenght;
+  py += minPlus * pDy * strenght;
 }
 
 function draw() {
@@ -78,6 +83,20 @@ function draw() {
   drawFPS();
   ray();
   drawPlayer();
+  border();
+}
+
+function border(){
+   ctx.lineWidth = 8;
+   ctx.strokeStyle = "black";
+   ctx.beginPath();
+   ctx.rect(
+     mapS * mapX + 8,
+     ctx.canvas.height / 4-1,
+     812,
+     ctx.canvas.height / 2+2
+   );
+   ctx.stroke();
 }
 
 function drawPlayer() {
@@ -130,7 +149,6 @@ let rayX;
 let oY;
 let oX;
 
-
 let mrX;
 let mrY;
 
@@ -140,14 +158,18 @@ let yRayX;
 let xRayY;
 let xRayX;
 
-let finalDistance;
+let ra;
 
+let finalDistance;
+let r;
+
+let antialiasing = 10;
 
 function ray() {
-  let ra = pa - (dgr * 45);
+  ra = pa - dgr * 45;
   ra = angleMax(ra);
 
-  for (let r = 0; r < 90; r++) {
+  for (r = 0; r < 90*antialiasing; r++) {
     let dof = 0;
     let diffY = py % mapS;
     let directionY;
@@ -173,7 +195,7 @@ function ray() {
     mrX = Math.floor(rayX / mapS);
     mrY = Math.floor(rayY / mapS) + directionY;
 
-    wall(dof, 0, directionY);
+    wallDetect(dof, 0, directionY);
 
     yRayY = rayY;
     yRayX = rayX;
@@ -204,65 +226,93 @@ function ray() {
     mrX = Math.floor(rayX / mapS) + directionX;
     mrY = Math.floor(rayY / mapS);
 
-    wall(dof, directionX, 0);
+    wallDetect(dof, directionX, 0);
 
     xRayY = rayY;
     xRayX = rayX;
 
     longestRay();
-    ra += dgr;
+    ra += dgr/antialiasing;
     ra = angleMax(ra);
   }
 }
-  function wall(dof, dX, dY) {
-    while (dof < 8) {
-      if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] == "@"
-      ) {
-        dof = 8;
-        mrX = Math.floor(rayX / mapS) + dX;
-        mrY = Math.floor(rayY / mapS) + dY;
-        map[mrY][mrX];
+function wallDetect(dof, dX, dY) {
+  while (dof < 8) {
+    if (
+      0 <= mrX &&
+      0 <= mrY &&
+      mrX < mapX &&
+      mrY < mapY &&
+      map[mrY][mrX] == "@"
+    ) {
+      dof = 8;
+      mrX = Math.floor(rayX / mapS) + dX;
+      mrY = Math.floor(rayY / mapS) + dY;
+      map[mrY][mrX];
+    } else {
+      dof++;
+      rayY += oY;
+      rayX += oX;
 
-      } else {
-        dof++;
-        rayY += oY;
-        rayX += oX;
-
-        mrX = Math.floor(rayX / mapS) + dX;
-        mrY = Math.floor(rayY / mapS) + dY;
-      }
+      mrX = Math.floor(rayX / mapS) + dX;
+      mrY = Math.floor(rayY / mapS) + dY;
+    }
   }
 }
 
 function longestRay() {
   let yLenght = Math.pow(
-    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px), 0.5);
+    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px),
+    0.5
+  );
   let xLenght = Math.pow(
-    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px), 0.5);
+    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px),
+    0.5
+  );
 
   if (yLenght >= xLenght) {
-    
     finalDistance = xLenght;
 
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = "#077E2B";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(xRayX, xRayY);
     ctx.lineWidth = 3;
     ctx.stroke();
   } else if (yLenght < xLenght) {
-
     finalDistance = yLenght;
 
-    ctx.strokeStyle = "#04d9ff";
+    ctx.strokeStyle = "#12DD3A";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(yRayX, yRayY);
     ctx.lineWidth = 3;
     ctx.stroke();
   }
+  drawColumn(finalDistance);
 }
 
+function drawColumn(finDistance) {
+  let fishA = pa - ra;
+  fishA = angleMax(fishA);
+  finDistance = finDistance*Math.cos(fishA);
+  let columnHeight = (mapS * ctx.canvas.height) / 2 / finDistance;
+  if (columnHeight > ctx.canvas.height / 2) {
+    columnHeight = ctx.canvas.height / 2;
+  }
+  let width = 9/antialiasing;
+
+  let columnO = ctx.canvas.height / 2 - columnHeight / 2;
+
+  
+  //ctx.strokeStyle = "lime";
+  ctx.beginPath();
+  ctx.moveTo(r * width + mapS * mapX+10, columnO);
+  ctx.lineTo(r * width + mapS * mapX+10, columnHeight + columnO);
+  ctx.lineWidth = width+1;
+  ctx.stroke();
+}
+//antialiasing
 function colorX(x) {
   return x;
 }
