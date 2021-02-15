@@ -11,11 +11,22 @@ ctx.canvas.height = window.innerHeight;
 const times = [];
 let fps;
 
-let px = 300;
-let py = 150;
-let pa = 1.85 * Math.PI;
+let px = 140;
+let py = 250;
+let pa = 1.5 * Math.PI;
 let pDx = Math.cos(pa);
 let pDy = Math.sin(pa);
+
+let mapX = 8, mapY = 8, mapS = 64, map = [
+  ["@", "@", "@", "@", "@", "@", "@", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "@", "-", "-", "-", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "@", "-", "-", "-", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "-", "-", "-", "-", "-", "-", "@"],
+  ["@", "@", "@", "@", "@", "@", "@", "@"],
+];
 
 function refreshLoop() {
   window.requestAnimationFrame(() => {
@@ -35,60 +46,54 @@ function animate() {
   draw();
 }
 
-document.addEventListener("keydown", function (event) {
-  if (event.keyCode == 37) {
-    rotation(-Math.PI / 50);
-    draw();
-  } else if (event.keyCode == 38) {
-    px += pDx * 4;
-    py += pDy * 4;
-    draw();
-  } else if (event.keyCode == 39) {
-    rotation(Math.PI / 50);
-    draw();
-  } else if (event.keyCode == 40) {
-    px -= pDx * 4;
-    py -= pDy * 4;
-    draw();
+window.addEventListener('keydown', event => {
+  switch (event.key) {
+    case "ArrowLeft":
+      rotation(-Math.PI / 50);
+      draw();
+      break;
+    case "ArrowUp":
+      walk(1, 4);
+      draw();
+      break;
+    case "ArrowRight":
+      rotation(Math.PI / 50);
+      draw();
+      break;
+    case "ArrowDown":
+      walk(-1, 4);
+      draw();
+      break;
   }
 });
-
-let temp;
+function walk(minPlus, strenght) {
+  px += (minPlus * pDx * strenght);
+  py += (minPlus * pDy * strenght);
+}
 
 function draw() {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   mapDraw();
-  drawRay();
+  drawPlayer();
+  drawFPS();
+  ray();
+}
+
+function drawPlayer() {
   ctx.fillStyle = "black";
   ctx.fillRect(px - 7, py - 7, 13, 13);
   ctx.fillStyle = "yellow";
   ctx.fillRect(px - 6, py - 6, 11, 11);
+}
+
+function drawFPS() {
+  ctx.fillStyle = "red";
   ctx.font = "17px Arial";
   ctx.fillText("FPS: " + fps, ctx.canvas.width - 70, 25);
-  ray();
 }
 
-let mapX = 8,
-  mapY = 8,
-  mapS = 64;
-let map = [
-  ["@", "@", "@", "@", "@", "@", "@", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "@", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "@", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "-", "-", "-", "-", "-", "-", "@"],
-  ["@", "@", "@", "@", "@", "@", "@", "@"],
-];
 
-function drawRay() {
-  ctx.strokeStyle = "green";
-  ctx.beginPath();
-  ctx.moveTo(px, py);
-  ctx.lineTo(px + pDx * 100, py + pDy * 100);
-  ctx.stroke();
-}
+
 
 function mapDraw() {
   ctx.fillStyle = "black";
@@ -117,24 +122,24 @@ function rotation(rot) {
   pDx = Math.cos(pa);
 }
 
-let ra;
-let diffY;
-let diffX;
-let rayY;
-let rayX;
-let oY;
-let oX;
-let dof;
-let directionY = 0;
+
+
+
 let yRayY;
 let yRayX;
 let xRayY;
 let xRayX;
 
 function ray() {
-  diffY = py % mapS;
-  dof = 0;
-  ra = pa;
+  let diffY = py % mapS;
+  let dof = 0;
+  let ra = pa;
+  let directionY = 0;
+  let rayY;
+  let rayX;
+  let oY;
+  let oX;
+
 
   if (ra > Math.PI) {
     rayY = py - diffY;
@@ -155,45 +160,31 @@ function ray() {
     directionY = 0;
   }
 
-  diffX = px % mapS;
+  let diffX = px % mapS;
 
   let mrX = Math.floor(rayX / mapS);
-  let mrY = Math.floor(rayY / mapS);
-  //console.log(map[mrY][mrX], mrX, mrY);
+  let mrY = Math.floor(rayY / mapS) + directionY;
 
   while (dof < 8) {
-    if (
-      0 <= mrX &&
-      0 <= mrY &&
-      mrX < mapX &&
-      mrY < mapY &&
-      map[mrY][mrX] == "@"
+    if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] == "@"
     ) {
-      //   console.log("stop");
+      dof = 8;
       mrX = Math.floor(rayX / mapS);
       mrY = Math.floor(rayY / mapS) + directionY;
       map[mrY][mrX];
-      dof = 8;
+
     } else {
+      dof++;
       rayY += oY;
       rayX += oX;
 
       mrX = Math.floor(rayX / mapS);
       mrY = Math.floor(rayY / mapS) + directionY;
-      dof++;
+
     }
-    //  console.log(rayY);
   }
   yRayY = rayY;
   yRayX = rayX;
-
-  /* ctx.fillStyle = "blue";
-  ctx.fillRect(
-    mrX * (mapS - 1) + mrX,
-    mrY * (mapS - 1) + mrY,
-    mapS - 1,
-    mapS - 1
-  );*/
 
   dof = 0;
   let directionX = 0;
@@ -204,21 +195,17 @@ function ray() {
     oX = -mapS;
     oY = (mapS / (px - rayX)) * (rayY - py);
     directionX = -1;
-    //  console.log("left " + rayX +" ra " + ra)
   } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
     rayX = px + (mapS - diffX);
     rayY = 1 * Math.tan(ra) * (rayX - px) + py;
     oX = mapS;
     oY = (mapS / (rayX - px)) * (rayY - py);
-    // console.log("right");
   } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
-    //  console.log("stop");
     rayX = px;
     rayY = py;
     dof = 8;
     directionX = 0;
   }
-
   mrX = Math.floor(rayX / mapS) + directionX;
   mrY = Math.floor(rayY / mapS);
 
@@ -254,7 +241,11 @@ function ray() {
     (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px),
     0.5
   );
+longest(yLenght, xLenght);
+  
+}
 
+function longest(yLenght, xLenght){
   if (yLenght > xLenght) {
     ctx.strokeStyle = "red";
     ctx.beginPath();
@@ -277,12 +268,8 @@ function ray() {
     ctx.lineWidth = 3;
     ctx.stroke();
   }
-
-  console.log(xLenght + " " + yLenght);
-  // console.log("\n" + mrX + " " + mrY);
-
-  // console.log("Ray x: " + rayX, "Ray y: " + rayY);
 }
+
 function colorX(x) {
   return x;
 }
