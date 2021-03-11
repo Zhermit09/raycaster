@@ -243,8 +243,7 @@ function ray() {
     xRayX = rayX;
 
     longestRay();
-
-    
+    ra += dgr / (ctx.canvas.width / 130);
     ra = angleMax(ra);
   }
 }
