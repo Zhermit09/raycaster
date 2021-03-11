@@ -7,15 +7,21 @@ let ctx = c.getContext("2d");
 
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
-//ctx.imageSmoothingEnabled = true;
+ctx.beginPath();
+ctx.moveTo(1, 500);
+ctx.lineTo(500, 500);
+ctx.lineWidth = 1;
+ctx.strokeStyle = "red";
+ctx.stroke();
 
+//ctx.imageSmoothingEnabled = true;
 
 const times = [];
 let fps;
 
-let px = 140;
-let py = 250;
-let pa = 1.5 * Math.PI;
+let px = 319;
+let py = 191;
+let pa = 1.75 * Math.PI;
 let pDx = Math.cos(pa);
 let pDy = Math.sin(pa);
 let dgr = Math.PI / 180;
@@ -79,25 +85,27 @@ function walk(minPlus, strenght) {
 
 function draw() {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  mapDraw();
   drawFPS();
+
+  mapDraw();
   ray();
   drawPlayer();
-  border();
+
+  //border();
 }
 
-function border(){
-   ctx.lineWidth = 8;
-   ctx.strokeStyle = "black";
-   ctx.beginPath();
-   ctx.rect(
-     mapS * mapX + 8,
-     ctx.canvas.height / 4-1,
-     812,
-     ctx.canvas.height / 2+2
-   );
-   ctx.stroke();
-}
+/*function border() {
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = "black";
+  ctx.beginPath();
+  ctx.rect(
+    mapS * mapX + 8,
+    ctx.canvas.height / 4 - 1,
+    812,
+    ctx.canvas.height / 2 + 2
+  );
+  ctx.stroke();
+}*/
 
 function drawPlayer() {
   ctx.fillStyle = "black";
@@ -162,30 +170,31 @@ let ra;
 
 let finalDistance;
 let r;
-
-let antialiasing = 10;
+let thick = 1;
 
 function ray() {
-  ra = pa - dgr * 45;
+  ra = pa - dgr * 65;
   ra = angleMax(ra);
 
-  for (r = 0; r < 90*antialiasing; r++) {
+  for (r = 0; r < ctx.canvas.width; r += thick) {
     let dof = 0;
     let diffY = py % mapS;
     let directionY;
     //Combine y and x ray checker togheter
     if (ra > Math.PI) {
       rayY = py - diffY;
-      rayX = (-1 / Math.tan(ra)) * (py - rayY) + px;
+      rayX = (rayY - py) / Math.tan(ra) + px;
       oY = -mapS;
-      oX = (mapS / (rayY - py)) * (px - rayX);
+      oX = (mapS * px) / (rayY - py) - (mapS * rayX) / (rayY - py);
       directionY = -1;
+    
     } else if (ra < Math.PI) {
       rayY = py + (mapS - diffY);
-      rayX = (1 / Math.tan(ra)) * (rayY - py) + px;
+      rayX = (rayY - py) / Math.tan(ra) + px;
       oY = mapS;
-      oX = (mapS / (rayY - py)) * (rayX - px);
+      oX = (mapS * rayX) / (rayY - py) - (mapS * px) / (rayY - py);
       directionY = 0;
+      
     } else if (ra == 0 || ra == Math.PI) {
       rayX = px;
       rayY = py;
@@ -208,15 +217,17 @@ function ray() {
 
     if (0.5 * Math.PI < ra && ra < 1.5 * Math.PI) {
       rayX = px - diffX;
-      rayY = -1 * Math.tan(ra) * (px - rayX) + py;
+      rayY = Math.tan(ra) * (rayX - px) + py;
       oX = -mapS;
-      oY = (mapS / (px - rayX)) * (rayY - py);
+      oY = (mapS * rayY) / (px - rayX) - (mapS * py) / (px - rayX);
       directionX = -1;
+     
     } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
       rayX = px + (mapS - diffX);
-      rayY = 1 * Math.tan(ra) * (rayX - px) + py;
+      rayY = Math.tan(ra) * (rayX - px) + py;
       oX = mapS;
-      oY = (mapS / (rayX - px)) * (rayY - py);
+      oY = (mapS * rayY) / (rayX - px) - (mapS * py) / (rayX - px);
+     
     } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
       rayX = px;
       rayY = py;
@@ -232,7 +243,8 @@ function ray() {
     xRayX = rayX;
 
     longestRay();
-    ra += dgr/antialiasing;
+
+    
     ra = angleMax(ra);
   }
 }
@@ -261,19 +273,19 @@ function wallDetect(dof, dX, dY) {
 }
 
 function longestRay() {
-  let yLenght = Math.pow(
-    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px),
-    0.5
+  let yLenght = Math.sqrt(
+    (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px)
   );
-  let xLenght = Math.pow(
-    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px),
-    0.5
+
+  let xLenght = Math.sqrt(
+    (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px)
   );
 
   if (yLenght >= xLenght) {
     finalDistance = xLenght;
 
-    ctx.strokeStyle = "#077E2B";
+    ctx.strokeStyle = "blue";
+    ctx.fillStyle = "#077E2B";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(xRayX, xRayY);
@@ -282,35 +294,40 @@ function longestRay() {
   } else if (yLenght < xLenght) {
     finalDistance = yLenght;
 
-    ctx.strokeStyle = "#12DD3A";
+    ctx.strokeStyle = "red";
+    ctx.fillStyle = "#12DD3A";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(yRayX, yRayY);
     ctx.lineWidth = 3;
     ctx.stroke();
   }
+  finalDistance *= Math.cos(pa - ra);
   drawColumn(finalDistance);
 }
 
+//let projectionPlane = (ctx.canvas.width/2/Math.tan(90))
+
 function drawColumn(finDistance) {
-  let fishA = pa - ra;
-  fishA = angleMax(fishA);
-  finDistance = finDistance*Math.cos(fishA);
-  let columnHeight = (mapS * ctx.canvas.height) / 2 / finDistance;
-  if (columnHeight > ctx.canvas.height / 2) {
-    columnHeight = ctx.canvas.height / 2;
-  }
-  let width = 9/antialiasing;
-
-  let columnO = ctx.canvas.height / 2 - columnHeight / 2;
-
   
+  let columnHeight = (mapS * ctx.canvas.width) / 2 / finDistance;
+  if (columnHeight > ctx.canvas.height) {
+    columnHeight = ctx.canvas.height;
+  }
+  if (columnHeight < 1) {
+    columnHeight = 1;
+  }
+  //let width = 1;
+  let columnO = 0.5 * (ctx.canvas.height - columnHeight);
+
   //ctx.strokeStyle = "lime";
-  ctx.beginPath();
-  ctx.moveTo(r * width + mapS * mapX+10, columnO);
-  ctx.lineTo(r * width + mapS * mapX+10, columnHeight + columnO);
-  ctx.lineWidth = width+1;
+  /*ctx.beginPath();
+  ctx.moveTo(r * width, columnO);
+  ctx.lineTo(r * width, columnHeight + columnO);
+  ctx.lineWidth = width;
   ctx.stroke();
+*/
+  ctx.fillRect(r, columnO, 1, columnHeight);
 }
 //antialiasing
 function colorX(x) {
