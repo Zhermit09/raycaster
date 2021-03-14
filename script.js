@@ -5,6 +5,9 @@ let c = document.getElementById("myCanvas");
 // @ts-ignore
 let ctx = c.getContext("2d");
 
+let texture1 = document.createElement("img");
+texture1.src = "./images/wall.jpg";
+
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
 ctx.beginPath();
@@ -22,19 +25,19 @@ let fps;
 let px = 319;
 let py = 191;
 let pa = 1.75 * Math.PI;
-let pDx = Math.cos(pa);
-let pDy = Math.sin(pa);
+let pDx = 0;
+let pDy = 0;
 let dgr = Math.PI / 180;
 
 let mapX = 8,
   mapY = 8,
-  mapS = 64,
+  mapS = 512,
   map = [
     ["@", "@", "@", "@", "@", "@", "@", "@"],
     ["@", "-", "-", "-", "-", "-", "-", "@"],
     ["@", "-", "@", "-", "-", "-", "-", "@"],
     ["@", "-", "-", "-", "-", "-", "-", "@"],
-    ["@", "-", "@", "-", "-", "-", "-", "@"],
+    ["@", "-", "@", "-", "-", "@", "-", "@"],
     ["@", "-", "-", "-", "-", "-", "-", "@"],
     ["@", "-", "-", "-", "-", "-", "-", "@"],
     ["@", "@", "@", "@", "@", "@", "@", "@"],
@@ -54,42 +57,48 @@ function refreshLoop() {
 refreshLoop();
 
 function animate() {
-  var request = requestAnimationFrame(animate);
   draw();
+  window.requestAnimationFrame(animate);
 }
 
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "ArrowLeft":
-      rotation(-Math.PI / 50);
-      draw();
+      rotation(-Math.PI / 100);
+
       break;
     case "ArrowUp":
-      walk(1, 4);
-      draw();
+      walk(1, mapS/16);
+
       break;
     case "ArrowRight":
-      rotation(Math.PI / 50);
-      draw();
+      rotation(Math.PI / 100);
+
       break;
     case "ArrowDown":
-      walk(-1, 4);
-      draw();
+      walk(-1, mapS/16);
+
       break;
   }
 });
 function walk(minPlus, strenght) {
   px += minPlus * pDx * strenght;
   py += minPlus * pDy * strenght;
+
+  /*if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] == "@") {
+    px -= minPlus * pDx * strenght;
+    py -= minPlus * pDy * strenght;
+  }*/
 }
 
 function draw() {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   drawFPS();
 
-  mapDraw();
+  //mapDraw();
   ray();
-  drawPlayer();
+
+  // drawPlayer();
 
   //border();
 }
@@ -176,14 +185,19 @@ function getRayAngle(r) {
   let angle;
   if (r < ctx.canvas.width / 2) {
     try {
-      angle = Math.atan(((ctx.canvas.width / 2)-r) / ((ctx.canvas.width / 2)/Math.tan(45)));
+      angle = Math.atan(
+        ((960 - r) / 960) * Math.tan((90 * dgr - 0.00000000000001) / 2)
+      );
     } catch {
       angle = 0;
     }
-    angle = ( angle) * -1;
+    angle = angle * -1;
   } else if (r >= ctx.canvas.width / 2) {
     try {
-      angle = Math.atan((r - ctx.canvas.width / 2) / ((ctx.canvas.width / 2)/Math.tan(45)));
+      angle = Math.atan(
+        ((r - ctx.canvas.width / 2) / (ctx.canvas.width / 2)) *
+          Math.tan((90 * dgr - 0.00000000000001) / 2)
+      );
     } catch {
       angle = 0;
     }
@@ -195,8 +209,6 @@ function getRayAngle(r) {
 function ray() {
   // ra = pa - dgr * 65;
   // ra = angleMax(ra);
-
-
 
   for (r = 0; r <= ctx.canvas.width; r += thick) {
     let dof = 0;
@@ -293,6 +305,9 @@ function wallDetect(dof, dX, dY) {
   }
 }
 
+let xHit = false;
+let yHit = false;
+
 function longestRay() {
   let yLenght = Math.sqrt(
     (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px)
@@ -305,23 +320,29 @@ function longestRay() {
   if (yLenght >= xLenght) {
     finalDistance = xLenght;
 
-    ctx.strokeStyle = "#077E2B";
+    xHit = true;
+    yHit = false;
+
+    /*  ctx.strokeStyle = "#077E2B";
     ctx.fillStyle = "#077E2B";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(xRayX, xRayY);
     ctx.lineWidth = 3;
-    ctx.stroke();
+    ctx.stroke();*/
   } else if (yLenght < xLenght) {
     finalDistance = yLenght;
 
-    ctx.strokeStyle = "#12DD3A";
+    yHit = true;
+    xHit = false;
+
+    /*ctx.strokeStyle = "#12DD3A";
     ctx.fillStyle = "#12DD3A";
     ctx.beginPath();
     ctx.moveTo(px, py);
     ctx.lineTo(yRayX, yRayY);
     ctx.lineWidth = 3;
-    ctx.stroke();
+    ctx.stroke();*/
   }
   finalDistance *= Math.cos(pa - ra);
   drawColumn(finalDistance);
@@ -329,11 +350,14 @@ function longestRay() {
 
 //let projectionPlane = (ctx.canvas.width/2/Math.tan(90))
 
+let imgO;
+
 function drawColumn(finDistance) {
   let columnHeight = (mapS * ctx.canvas.height) / finDistance;
-  if (columnHeight > ctx.canvas.height) {
+  //mapS*ctx.canvas.height / finDistance/(Math.tan((90*dgr - 0.00000000000001)/2)/Math.cos(45*dgr))
+  /* if (columnHeight > ctx.canvas.height) {
     columnHeight = ctx.canvas.height;
-  }
+  }*/
   if (columnHeight < 0) {
     columnHeight = 0;
   }
@@ -347,8 +371,39 @@ function drawColumn(finDistance) {
   ctx.lineWidth = width;
   ctx.stroke();
 */
-  ctx.fillRect(r, columnO, 1, columnHeight);
+
+  if (xHit) {
+    imgO = xRayY % mapS;
+  } else if (yHit) {
+    imgO = yRayX % mapS;
+  }
+  ctx.drawImage(
+    texture1,
+    (imgO * 624) / mapS + 1,
+    0,
+    5,
+    626,
+    r,
+    columnO,
+    5,
+    columnHeight
+  );
+
+  /*for (let i = 0; i < columnHeight; i++){
+  ctx.fillStyle = getRandomColor();
+  ctx.fillRect(r, columnO+i, 2, 2);
+  }*/
 }
+
+function getRandomColor() {
+  var letters = "0123456789ABCDEF";
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 //antialiasing
 function colorX(x) {
   return x;
