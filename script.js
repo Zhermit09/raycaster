@@ -11,7 +11,7 @@ ctx.beginPath();
 ctx.moveTo(1, 500);
 ctx.lineTo(500, 500);
 ctx.lineWidth = 1;
-ctx.strokeStyle = "red";
+//ctx.strokeStyle = "red";
 ctx.stroke();
 
 //ctx.imageSmoothingEnabled = true;
@@ -172,14 +172,40 @@ let finalDistance;
 let r;
 let thick = 1;
 
-function ray() {
-  ra = pa - dgr * 65;
-  ra = angleMax(ra);
+function getRayAngle(r) {
+  let angle;
+  if (r < ctx.canvas.width / 2) {
+    try {
+      angle = Math.atan(((ctx.canvas.width / 2)-r) / ((ctx.canvas.width / 2)/Math.tan(45)));
+    } catch {
+      angle = 0;
+    }
+    angle = ( angle) * -1;
+  } else if (r >= ctx.canvas.width / 2) {
+    try {
+      angle = Math.atan((r - ctx.canvas.width / 2) / ((ctx.canvas.width / 2)/Math.tan(45)));
+    } catch {
+      angle = 0;
+    }
+    //angle = Math.PI / 2 - angle;
+  }
+  return angle;
+}
 
-  for (r = 0; r < ctx.canvas.width; r += thick) {
+function ray() {
+  // ra = pa - dgr * 65;
+  // ra = angleMax(ra);
+
+
+
+  for (r = 0; r <= ctx.canvas.width; r += thick) {
     let dof = 0;
     let diffY = py % mapS;
     let directionY;
+
+    ra = pa + getRayAngle(r);
+    ra = angleMax(ra);
+
     //Combine y and x ray checker togheter
     if (ra > Math.PI) {
       rayY = py - diffY;
@@ -187,14 +213,12 @@ function ray() {
       oY = -mapS;
       oX = (mapS * px) / (rayY - py) - (mapS * rayX) / (rayY - py);
       directionY = -1;
-    
     } else if (ra < Math.PI) {
       rayY = py + (mapS - diffY);
       rayX = (rayY - py) / Math.tan(ra) + px;
       oY = mapS;
       oX = (mapS * rayX) / (rayY - py) - (mapS * px) / (rayY - py);
       directionY = 0;
-      
     } else if (ra == 0 || ra == Math.PI) {
       rayX = px;
       rayY = py;
@@ -221,13 +245,11 @@ function ray() {
       oX = -mapS;
       oY = (mapS * rayY) / (px - rayX) - (mapS * py) / (px - rayX);
       directionX = -1;
-     
     } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
       rayX = px + (mapS - diffX);
       rayY = Math.tan(ra) * (rayX - px) + py;
       oX = mapS;
       oY = (mapS * rayY) / (rayX - px) - (mapS * py) / (rayX - px);
-     
     } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
       rayX = px;
       rayY = py;
@@ -243,8 +265,8 @@ function ray() {
     xRayX = rayX;
 
     longestRay();
-    ra += dgr / (ctx.canvas.width / 130);
-    ra = angleMax(ra);
+    // ra += dgr / (ctx.canvas.width / 130);
+    // ra = angleMax(ra);
   }
 }
 function wallDetect(dof, dX, dY) {
@@ -283,7 +305,7 @@ function longestRay() {
   if (yLenght >= xLenght) {
     finalDistance = xLenght;
 
-    ctx.strokeStyle = "blue";
+    ctx.strokeStyle = "#077E2B";
     ctx.fillStyle = "#077E2B";
     ctx.beginPath();
     ctx.moveTo(px, py);
@@ -293,7 +315,7 @@ function longestRay() {
   } else if (yLenght < xLenght) {
     finalDistance = yLenght;
 
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = "#12DD3A";
     ctx.fillStyle = "#12DD3A";
     ctx.beginPath();
     ctx.moveTo(px, py);
@@ -308,13 +330,12 @@ function longestRay() {
 //let projectionPlane = (ctx.canvas.width/2/Math.tan(90))
 
 function drawColumn(finDistance) {
-  
-  let columnHeight = (mapS * ctx.canvas.width) / 2 / finDistance;
+  let columnHeight = (mapS * ctx.canvas.height) / finDistance;
   if (columnHeight > ctx.canvas.height) {
     columnHeight = ctx.canvas.height;
   }
-  if (columnHeight < 1) {
-    columnHeight = 1;
+  if (columnHeight < 0) {
+    columnHeight = 0;
   }
   //let width = 1;
   let columnO = 0.5 * (ctx.canvas.height - columnHeight);
