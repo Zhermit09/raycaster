@@ -10,21 +10,15 @@ texture1.src = "./images/wall.jpg";
 
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
-ctx.beginPath();
-ctx.moveTo(1, 500);
-ctx.lineTo(500, 500);
-ctx.lineWidth = 1;
-//ctx.strokeStyle = "red";
-ctx.stroke();
 
 //ctx.imageSmoothingEnabled = true;
 
 const times = [];
 let fps;
 
-let px = 319;
-let py = 191;
-let pa = 1.75 * Math.PI;
+let px = 620;
+let py = 620;
+let pa = 0.25 * Math.PI;
 let pDx = 0;
 let pDy = 0;
 let dgr = Math.PI / 180;
@@ -43,20 +37,16 @@ let mapX = 8,
     ["@", "@", "@", "@", "@", "@", "@", "@"],
   ];
 
-function refreshLoop() {
-  window.requestAnimationFrame(() => {
-    const now = performance.now();
-    while (times.length > 0 && times[0] <= now - 1000) {
-      times.shift();
-    }
-    times.push(now);
-    fps = times.length;
-    refreshLoop();
-  });
+let t1 = 0;
+
+function fPS() {
+  let t0 = performance.now();
+  fps = Math.round(1000 / (t0 - t1));
+  t1 = t0;
 }
-refreshLoop();
 
 function animate() {
+  fPS();
   draw();
   window.requestAnimationFrame(animate);
 }
@@ -68,7 +58,7 @@ window.addEventListener("keydown", (event) => {
 
       break;
     case "ArrowUp":
-      walk(1, mapS/16);
+      walk(1, mapS / 16);
 
       break;
     case "ArrowRight":
@@ -76,7 +66,7 @@ window.addEventListener("keydown", (event) => {
 
       break;
     case "ArrowDown":
-      walk(-1, mapS/16);
+      walk(-1, mapS / 16);
 
       break;
   }
@@ -85,36 +75,19 @@ function walk(minPlus, strenght) {
   px += minPlus * pDx * strenght;
   py += minPlus * pDy * strenght;
 
-  /*if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] == "@") {
+  if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] == "@") {
     px -= minPlus * pDx * strenght;
     py -= minPlus * pDy * strenght;
-  }*/
+  }
 }
 
 function draw() {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  drawFPS();
-
+ ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   //mapDraw();
   ray();
-
-  // drawPlayer();
-
-  //border();
+  drawFPS();
+  //drawPlayer();
 }
-
-/*function border() {
-  ctx.lineWidth = 8;
-  ctx.strokeStyle = "black";
-  ctx.beginPath();
-  ctx.rect(
-    mapS * mapX + 8,
-    ctx.canvas.height / 4 - 1,
-    812,
-    ctx.canvas.height / 2 + 2
-  );
-  ctx.stroke();
-}*/
 
 function drawPlayer() {
   ctx.fillStyle = "black";
@@ -123,10 +96,22 @@ function drawPlayer() {
   ctx.fillRect(px - 6, py - 6, 11, 11);
 }
 
+let timeDraw = 0;
+let fpsDraw = 0;
+
 function drawFPS() {
-  ctx.fillStyle = "red";
-  ctx.font = "17px Arial";
-  ctx.fillText("FPS: " + fps, ctx.canvas.width - 70, 25);
+  if (performance.now() - timeDraw > 70) {
+    timeDraw = performance.now();
+    fpsDraw = fps;
+  }
+
+  ctx.font = "15px Arial";
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "miter";
+  ctx.miterLimit = 2;
+  ctx.strokeText("FPS: " + fpsDraw, ctx.canvas.width - 70, 25);
+  ctx.fillStyle = "lime";
+  ctx.fillText("FPS: " + fpsDraw, ctx.canvas.width - 70, 25);
 }
 
 function mapDraw() {
