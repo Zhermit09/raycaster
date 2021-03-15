@@ -16,25 +16,34 @@ ctx.canvas.height = window.innerHeight;
 const times = [];
 let fps;
 
-let px = 620;
-let py = 620;
+let px = 1000;
+let py = 1000;
 let pa = 0.25 * Math.PI;
 let pDx = 0;
 let pDy = 0;
 let dgr = Math.PI / 180;
 
-let mapX = 8,
-  mapY = 8,
+let mapX = 16,
+  mapY = 16,
   mapS = 512,
   map = [
-    ["@", "@", "@", "@", "@", "@", "@", "@"],
-    ["@", "-", "-", "-", "-", "-", "-", "@"],
-    ["@", "-", "@", "-", "-", "-", "-", "@"],
-    ["@", "-", "-", "-", "-", "-", "-", "@"],
-    ["@", "-", "@", "-", "-", "@", "-", "@"],
-    ["@", "-", "-", "-", "-", "-", "-", "@"],
-    ["@", "-", "-", "-", "-", "-", "-", "@"],
-    ["@", "@", "@", "@", "@", "@", "@", "@"],
+    ["@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "@", "@", "@", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@",],
   ];
 
 let t1 = 0;
@@ -46,31 +55,65 @@ function fPS() {
 }
 
 function animate() {
-  fPS();
+  controls();
   draw();
+  fPS();
   window.requestAnimationFrame(animate);
+}
+
+let down = 0;
+let up = 0;
+let left = 0;
+let right = 0;
+
+function controls() {
+  if (left == 1) {
+    rotation(-Math.PI / 100);
+  }
+  if (up == 1) {
+    walk(1, mapS / 16);
+  }
+  if (right == 1) {
+    rotation(Math.PI / 100);
+  }
+  if (down == 1) {
+    walk(-1, mapS / 16);
+  }
 }
 
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "ArrowLeft":
-      rotation(-Math.PI / 100);
-
+      left = 1;
       break;
     case "ArrowUp":
-      walk(1, mapS / 16);
-
+      up = 1;
       break;
     case "ArrowRight":
-      rotation(Math.PI / 100);
-
+      right = 1;
       break;
     case "ArrowDown":
-      walk(-1, mapS / 16);
-
+      down = 1;
       break;
   }
 });
+window.addEventListener("keyup", (event) => {
+  switch (event.key) {
+    case "ArrowLeft":
+      left = 0;
+      break;
+    case "ArrowUp":
+      up = 0;
+      break;
+    case "ArrowRight":
+      right = 0;
+      break;
+    case "ArrowDown":
+      down = 0;
+      break;
+  }
+});
+
 function walk(minPlus, strenght) {
   px += minPlus * pDx * strenght;
   py += minPlus * pDy * strenght;
@@ -82,9 +125,9 @@ function walk(minPlus, strenght) {
 }
 
 function draw() {
- ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   //mapDraw();
-  ray();
+  rayTime();
   drawFPS();
   //drawPlayer();
 }
@@ -116,8 +159,8 @@ function drawFPS() {
 
 function mapDraw() {
   ctx.fillStyle = "black";
-  for (var i = 0; i < mapY; i++) {
-    for (var j = 0; j < mapX; j++) {
+  for (let i = 0; i < mapY; i++) {
+    for (let j = 0; j < mapX; j++) {
       if (map[i][j] == "@") {
         ctx.fillStyle = "white";
       } else if (map[i][j] == "-") {
@@ -181,7 +224,7 @@ function getRayAngle(r) {
     try {
       angle = Math.atan(
         ((r - ctx.canvas.width / 2) / (ctx.canvas.width / 2)) *
-          Math.tan((90 * dgr - 0.00000000000001) / 2)
+        Math.tan((90 * dgr - 0.00000000000001) / 2)
       );
     } catch {
       angle = 0;
@@ -191,7 +234,7 @@ function getRayAngle(r) {
   return angle;
 }
 
-function ray() {
+function rayTime() {
   // ra = pa - dgr * 65;
   // ra = angleMax(ra);
 
@@ -267,7 +310,7 @@ function ray() {
   }
 }
 function wallDetect(dof, dX, dY) {
-  while (dof < 8) {
+  while (dof < 16) {
     if (
       0 <= mrX &&
       0 <= mrY &&
@@ -275,7 +318,7 @@ function wallDetect(dof, dX, dY) {
       mrY < mapY &&
       map[mrY][mrX] == "@"
     ) {
-      dof = 8;
+      dof = 16;
       mrX = Math.floor(rayX / mapS) + dX;
       mrY = Math.floor(rayY / mapS) + dY;
       map[mrY][mrX];
