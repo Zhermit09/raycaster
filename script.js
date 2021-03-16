@@ -2,7 +2,7 @@
 "use strict";
 
 let c = document.getElementById("myCanvas");
-// @ts-ignore
+
 let ctx = c.getContext("2d");
 
 let wall1 = document.createElement("img");
@@ -19,7 +19,7 @@ let canvasHalfHeight = ctx.canvas.height / 2;
 
 //ctx.imageSmoothingEnabled = true;
 
-const times = [];
+
 let fps;
 
 let px = 100;
@@ -83,16 +83,16 @@ let left = 0;
 let right = 0;
 
 function controls() {
-  if (left == 1) {
+  if (left === 1) {
     rotation((-Math.PI / 100) * (deltaTime / 15));
   }
-  if (up == 1) {
+  if (up === 1) {
     walk(1, (mapS / 16) * (deltaTime / 30));
   }
-  if (right == 1) {
+  if (right === 1) {
     rotation((Math.PI / 100) * (deltaTime / 15));
   }
-  if (down == 1) {
+  if (down === 1) {
     walk(-1, (mapS / 16) * (deltaTime / 30));
   }
 }
@@ -131,20 +131,20 @@ window.addEventListener("keyup", (event) => {
   }
 });
 
-function walk(minPlus, strenght) {
-  px += minPlus * pDx * strenght;
-  py += minPlus * pDy * strenght;
+function walk(minPlus, strength) {
+  px += minPlus * pDx * strength;
+  py += minPlus * pDy * strength;
 
-  if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] != "-") {
-    px -= minPlus * pDx * strenght;
-    py -= minPlus * pDy * strenght;
+  if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] !== "-") {
+    px -= minPlus * pDx * strength;
+    py -= minPlus * pDy * strength;
   }
 }
 
 function draw() {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   // mapDraw();
-  raycaster();
+  rayCaster();
   drawFPS();
   // drawPlayer();
 }
@@ -174,7 +174,6 @@ function drawFPS() {
   ctx.fillStyle = "lime";
   ctx.fillText("FPS: " + fpsDraw, ctx.canvas.width - 70, 25);
 }
-
 
 
 function rotation(rot) {
@@ -220,10 +219,11 @@ function getRayAngle() {
 
   for (i = 0; i < ctx.canvas.width; i += 1) {
     const x = i - canvasHalfWidth;
-    if (0 != x) {
+    if (0 !== x) {
       angle = Math.atan((x / canvasHalfWidth) * Math.tan(FovHalfRad));
+    } else {
+      angle = 0;
     }
-    else { angle = 0; }
     angleArray[i] = angle;
 
   }
@@ -231,7 +231,8 @@ function getRayAngle() {
 
 let directionY;
 let directionX;
-function raycaster() {
+
+function rayCaster() {
 
   for (r = 0; r < ctx.canvas.width; r += 1) {
     let dofY = 0;
@@ -243,7 +244,7 @@ function raycaster() {
 
     let tanRa = Math.tan(ra);
 
-    //Combine y and x ray checker togheter
+    //Combine y and x ray checker together
     if (ra > Math.PI) {
       rayY = py - diffY;
       rayX = (-diffY) / tanRa + px;
@@ -256,7 +257,7 @@ function raycaster() {
       oY = mapS;
       oX = (mapS * (rayX - px)) / (rayY - py);
       directionY = 0;
-    } else if (ra == 0 || ra == Math.PI) {
+    } else if (ra === 0 || ra === Math.PI) {
       rayX = px;
       rayY = py;
       dofY = 16;
@@ -289,7 +290,7 @@ function raycaster() {
       oX = mapS;
       oY = (mapS * (rayY - py)) / (rayX - px);
       directionX = 0;
-    } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
+    } else if (ra === 0.5 * Math.PI || ra === 1.5 * Math.PI) {
       rayX = px;
       rayY = py;
       dofX = 16;
@@ -303,14 +304,15 @@ function raycaster() {
     xRayY = rayY;
     xRayX = rayX;
 
-    if (dofX == 1 || dofY == 1) {
+    if (dofX === 1 || dofY === 1) {
       longestRay();
     }
   }
 }
+
 function wallDetect(dofW, dX, dY) {
   while (dofW < 16) {
-    if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] != "-") {
+    if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] !== "-") {
       mrX = Math.floor(rayX / mapS) + dX;
       mrY = Math.floor(rayY / mapS) + dY;
       map[mrY][mrX];
@@ -332,19 +334,18 @@ let xHit = false;
 let yHit = false;
 
 function longestRay() {
-  let yLenght = Math.sqrt(
+  let yLength = Math.sqrt(
     (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px)
   );
-  let xLenght = Math.sqrt(
+  let xLength = Math.sqrt(
     (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px)
   );
-  if (yLenght >= xLenght) {
-    finalDistance = xLenght;
+  if (yLength >= xLength) {
+    finalDistance = xLength;
     xHit = true;
     yHit = false;
-  }
-  else if (yLenght < xLenght) {
-    finalDistance = yLenght;
+  } else if (yLength < xLength) {
+    finalDistance = yLength;
 
     yHit = true;
     xHit = false;
@@ -376,10 +377,9 @@ function drawColumn(finDistance) {
     if (xRayY > 0) {
       imgO = (xRayY % mapS);
     }
-    if (directionX == 0) {
+    if (directionX === 0) {
       x = (texture.height - 1) - Math.floor((imgO * (texture.height) / mapS));
-    }
-    else if (directionX == -1) {
+    } else if (directionX === -1) {
       x = Math.floor((imgO * (texture.height) / mapS));
     }
     ctx.globalAlpha = Math.min(0.8, (0.8 * columnHeight * 2) / ctx.canvas.height);
@@ -391,24 +391,18 @@ function drawColumn(finDistance) {
 
     if (yRayX > 0) {
       imgO = (yRayX % mapS);
-      if (directionY == -1) {
+      if (directionY === -1) {
         x = (texture.height - 1) - Math.floor((imgO * (texture.height) / mapS));
-      }
-      else if (directionY == 0) {
+      } else if (directionY === 0) {
         x = Math.floor((imgO * (texture.height) / mapS));
       }
     }
     ctx.globalAlpha = Math.min(1, (columnHeight * 2) / ctx.canvas.height);
   }
-
-
-
   ctx.drawImage(texture,
     x, 0, 1, texture.height,
     r, columnO, 1, columnHeight);
   ctx.globalAlpha = 1;
-
-
 }
 
 function setTexture() {
