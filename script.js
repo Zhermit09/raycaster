@@ -382,7 +382,7 @@ function drawColumn(finDistance) {
     else if (directionX == -1) {
       x = Math.floor((imgO * (texture.height) / mapS));
     }
-    ctx.globalAlpha = Math.min(0.8, (0.8 * columnHeight * 3) / ctx.canvas.height);
+    ctx.globalAlpha = Math.min(0.8, (0.8 * columnHeight * 2) / ctx.canvas.height);
 
   } else if (yHit) {
     mrX = Math.floor(yRayX / mapS);
@@ -398,7 +398,7 @@ function drawColumn(finDistance) {
         x = Math.floor((imgO * (texture.height) / mapS));
       }
     }
-    ctx.globalAlpha = Math.min(1, (columnHeight * 3) / ctx.canvas.height);
+    ctx.globalAlpha = Math.min(1, (columnHeight * 2) / ctx.canvas.height);
   }
 
 
