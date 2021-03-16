@@ -6,10 +6,10 @@ let c = document.getElementById("myCanvas");
 let ctx = c.getContext("2d");
 
 let wall1 = document.createElement("img");
-wall1.src = "./Images/wall.jpg";
+wall1.src = "./Images/Wall.jpg";
 
 let wall2 = document.createElement("img");
-wall2.src = "./Images/cool.jpg";
+wall2.src = "./Images/Cool.jpg";
 
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
