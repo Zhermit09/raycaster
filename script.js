@@ -5,53 +5,69 @@ let c = document.getElementById("myCanvas");
 // @ts-ignore
 let ctx = c.getContext("2d");
 
-let texture1 = document.createElement("img");
-texture1.src = "./images/wall.jpg";
+let wall1 = document.createElement("img");
+wall1.src = "./images/wall.jpg";
+
+let wall2 = document.createElement("img");
+wall2.src = "./images/cool.jpg";
 
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
+
+let canvasHalfWidth = ctx.canvas.width / 2;
+let canvasHalfHeight = ctx.canvas.height / 2;
 
 //ctx.imageSmoothingEnabled = true;
 
 const times = [];
 let fps;
 
-let px = 1000;
-let py = 1000;
-let pa = 0.25 * Math.PI;
+let px = 100;
+let py = 100;
+let pa = 1.5 * Math.PI;
 let pDx = 0;
 let pDy = 0;
-let dgr = Math.PI / 180;
+let toRad = Math.PI / 180;
+
+let angleArray = new Array(ctx.canvas.width);
 
 let mapX = 16,
   mapY = 16,
-  mapS = 512,
+  mapS = 16,
   map = [
-    ["@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "@", "@", "@", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
-    ["@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@",],
+    ["@", "#", "@", "#", "@", "#", "@", "#", "@", "#", "@", "#", "@", "#", "@", "@",],
+    ["@", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "#",],
+    ["#", "-", "@", "-", "@", "#", "@", "-", "-", "@", "#", "@", "#", "@", "-", "@",],
+    ["@", "-", "#", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "#", "-", "#",],
+    ["#", "-", "@", "-", "#", "-", "-", "-", "-", "-", "-", "@", "-", "@", "-", "@",],
+    ["@", "-", "-", "-", "@", "-", "-", "-", "-", "-", "-", "#", "-", "#", "-", "#",],
+    ["#", "-", "#", "-", "#", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "@",],
+    ["@", "-", "@", "-", "-", "-", "-", "@", "#", "-", "-", "#", "-", "@", "-", "#",],
+    ["#", "-", "#", "-", "@", "-", "-", "-", "-", "-", "-", "-", "-", "#", "-", "@",],
+    ["@", "-", "-", "-", "#", "-", "-", "-", "-", "-", "-", "@", "-", "@", "-", "#",],
+    ["#", "-", "#", "-", "@", "-", "-", "#", "@", "-", "-", "#", "-", "-", "-", "@",],
+    ["@", "-", "@", "-", "#", "-", "@", "#", "@", "#", "-", "@", "-", "#", "-", "#",],
+    ["#", "-", "#", "-", "-", "-", "-", "@", "#", "-", "-", "-", "-", "@", "-", "@",],
+    ["@", "-", "@", "#", "@", "-", "-", "-", "-", "-", "-", "#", "@", "#", "-", "#",],
+    ["#", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
+    ["@", "@", "#", "@", "#", "@", "#", "@", "#", "@", "#", "@", "#", "@", "#", "@",],
   ];
 
 let t1 = 0;
+let deltaTime;
+
+
+function preLoad() {
+  getRayAngle();
+  animate();
+}
 
 function fPS() {
   let t0 = performance.now();
-  fps = Math.round(1000 / (t0 - t1));
+  deltaTime = (t0 - t1);
   t1 = t0;
+  fps = Math.round(1000 / deltaTime);
+
 }
 
 function animate() {
@@ -68,16 +84,16 @@ let right = 0;
 
 function controls() {
   if (left == 1) {
-    rotation(-Math.PI / 100);
+    rotation((-Math.PI / 100) * (deltaTime / 15));
   }
   if (up == 1) {
-    walk(1, mapS / 16);
+    walk(1, (mapS / 16) * (deltaTime / 30));
   }
   if (right == 1) {
-    rotation(Math.PI / 100);
+    rotation((Math.PI / 100) * (deltaTime / 15));
   }
   if (down == 1) {
-    walk(-1, mapS / 16);
+    walk(-1, (mapS / 16) * (deltaTime / 30));
   }
 }
 
@@ -97,6 +113,7 @@ window.addEventListener("keydown", (event) => {
       break;
   }
 });
+
 window.addEventListener("keyup", (event) => {
   switch (event.key) {
     case "ArrowLeft":
@@ -118,7 +135,7 @@ function walk(minPlus, strenght) {
   px += minPlus * pDx * strenght;
   py += minPlus * pDy * strenght;
 
-  if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] == "@") {
+  if (map[Math.floor(py / mapS)][Math.floor(px / mapS)] != "-") {
     px -= minPlus * pDx * strenght;
     py -= minPlus * pDy * strenght;
   }
@@ -126,10 +143,10 @@ function walk(minPlus, strenght) {
 
 function draw() {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  //mapDraw();
-  rayTime();
+  // mapDraw();
+  raycaster();
   drawFPS();
-  //drawPlayer();
+  // drawPlayer();
 }
 
 function drawPlayer() {
@@ -143,12 +160,13 @@ let timeDraw = 0;
 let fpsDraw = 0;
 
 function drawFPS() {
-  if (performance.now() - timeDraw > 70) {
+  if (performance.now() - timeDraw > 100) {
     timeDraw = performance.now();
     fpsDraw = fps;
   }
 
   ctx.font = "15px Arial";
+  ctx.strokeStyle = "black";
   ctx.lineWidth = 3;
   ctx.lineJoin = "miter";
   ctx.miterLimit = 2;
@@ -157,21 +175,7 @@ function drawFPS() {
   ctx.fillText("FPS: " + fpsDraw, ctx.canvas.width - 70, 25);
 }
 
-function mapDraw() {
-  ctx.fillStyle = "black";
-  for (let i = 0; i < mapY; i++) {
-    for (let j = 0; j < mapX; j++) {
-      if (map[i][j] == "@") {
-        ctx.fillStyle = "white";
-      } else if (map[i][j] == "-") {
-        ctx.fillStyle = "black";
-      }
-      colorX(j);
-      colorY(i);
-      ctx.fillRect(j * (mapS - 1) + j, i * (mapS - 1) + i, mapS - 1, mapS - 1);
-    }
-  }
-}
+
 
 function rotation(rot) {
   pa += rot;
@@ -207,123 +211,113 @@ let ra;
 
 let finalDistance;
 let r;
-let thick = 1;
 
-function getRayAngle(r) {
+function getRayAngle() {
   let angle;
-  if (r < ctx.canvas.width / 2) {
-    try {
-      angle = Math.atan(
-        ((960 - r) / 960) * Math.tan((90 * dgr - 0.00000000000001) / 2)
-      );
-    } catch {
-      angle = 0;
+  let i;
+  const Fov = 90;
+  const FovHalfRad = (Fov * toRad) / 2;
+
+  for (i = 0; i < ctx.canvas.width; i += 1) {
+    const x = i - canvasHalfWidth;
+    if (0 != x) {
+      angle = Math.atan((x / canvasHalfWidth) * Math.tan(FovHalfRad));
     }
-    angle = angle * -1;
-  } else if (r >= ctx.canvas.width / 2) {
-    try {
-      angle = Math.atan(
-        ((r - ctx.canvas.width / 2) / (ctx.canvas.width / 2)) *
-        Math.tan((90 * dgr - 0.00000000000001) / 2)
-      );
-    } catch {
-      angle = 0;
-    }
-    //angle = Math.PI / 2 - angle;
+    else { angle = 0; }
+    angleArray[i] = angle;
+
   }
-  return angle;
 }
 
-function rayTime() {
-  // ra = pa - dgr * 65;
-  // ra = angleMax(ra);
+let directionY;
+let directionX;
+function raycaster() {
 
-  for (r = 0; r <= ctx.canvas.width; r += thick) {
-    let dof = 0;
+  for (r = 0; r < ctx.canvas.width; r += 1) {
+    let dofY = 0;
     let diffY = py % mapS;
-    let directionY;
+    directionY = 0;
 
-    ra = pa + getRayAngle(r);
+    ra = pa + angleArray[r];
     ra = angleMax(ra);
+
+    let tanRa = Math.tan(ra);
 
     //Combine y and x ray checker togheter
     if (ra > Math.PI) {
       rayY = py - diffY;
-      rayX = (rayY - py) / Math.tan(ra) + px;
+      rayX = (-diffY) / tanRa + px;
       oY = -mapS;
-      oX = (mapS * px) / (rayY - py) - (mapS * rayX) / (rayY - py);
+      oX = (mapS * (px - rayX)) / -diffY;
       directionY = -1;
     } else if (ra < Math.PI) {
       rayY = py + (mapS - diffY);
-      rayX = (rayY - py) / Math.tan(ra) + px;
+      rayX = (rayY - py) / tanRa + px;
       oY = mapS;
-      oX = (mapS * rayX) / (rayY - py) - (mapS * px) / (rayY - py);
+      oX = (mapS * (rayX - px)) / (rayY - py);
       directionY = 0;
     } else if (ra == 0 || ra == Math.PI) {
       rayX = px;
       rayY = py;
-      dof = 8;
+      dofY = 16;
       directionY = 0;
     }
     mrX = Math.floor(rayX / mapS);
     mrY = Math.floor(rayY / mapS) + directionY;
 
-    wallDetect(dof, 0, directionY);
+    dofY = wallDetect(dofY, 0, directionY);
 
     yRayY = rayY;
     yRayX = rayX;
 
     //----------------------------------------------
-    dof = 0;
 
-    let directionX = 0;
+    let dofX = 0;
+    directionX = 0;
+
     let diffX = px % mapS;
 
     if (0.5 * Math.PI < ra && ra < 1.5 * Math.PI) {
       rayX = px - diffX;
-      rayY = Math.tan(ra) * (rayX - px) + py;
+      rayY = tanRa * (-diffX) + py;
       oX = -mapS;
-      oY = (mapS * rayY) / (px - rayX) - (mapS * py) / (px - rayX);
+      oY = (mapS * (rayY - py)) / diffX;
       directionX = -1;
     } else if (0.5 * Math.PI < ra || ra < 1.5 * Math.PI) {
       rayX = px + (mapS - diffX);
-      rayY = Math.tan(ra) * (rayX - px) + py;
+      rayY = tanRa * (rayX - px) + py;
       oX = mapS;
-      oY = (mapS * rayY) / (rayX - px) - (mapS * py) / (rayX - px);
+      oY = (mapS * (rayY - py)) / (rayX - px);
+      directionX = 0;
     } else if (ra == 0.5 * Math.PI || ra == 1.5 * Math.PI) {
       rayX = px;
       rayY = py;
-      dof = 8;
+      dofX = 16;
       directionX = 0;
     }
     mrX = Math.floor(rayX / mapS) + directionX;
     mrY = Math.floor(rayY / mapS);
 
-    wallDetect(dof, directionX, 0);
+    dofX = wallDetect(dofX, directionX, 0);
 
     xRayY = rayY;
     xRayX = rayX;
 
-    longestRay();
-    // ra += dgr / (ctx.canvas.width / 130);
-    // ra = angleMax(ra);
+    if (dofX == 1 || dofY == 1) {
+      longestRay();
+    }
   }
 }
-function wallDetect(dof, dX, dY) {
-  while (dof < 16) {
-    if (
-      0 <= mrX &&
-      0 <= mrY &&
-      mrX < mapX &&
-      mrY < mapY &&
-      map[mrY][mrX] == "@"
-    ) {
-      dof = 16;
+function wallDetect(dofW, dX, dY) {
+  while (dofW < 16) {
+    if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] != "-") {
       mrX = Math.floor(rayX / mapS) + dX;
       mrY = Math.floor(rayY / mapS) + dY;
       map[mrY][mrX];
+      dofW = 1;
+      break;
     } else {
-      dof++;
+      dofW++;
       rayY += oY;
       rayX += oX;
 
@@ -331,6 +325,7 @@ function wallDetect(dof, dX, dY) {
       mrY = Math.floor(rayY / mapS) + dY;
     }
   }
+  return dofW;
 }
 
 let xHit = false;
@@ -340,102 +335,91 @@ function longestRay() {
   let yLenght = Math.sqrt(
     (yRayY - py) * (yRayY - py) + (yRayX - px) * (yRayX - px)
   );
-
   let xLenght = Math.sqrt(
     (xRayY - py) * (xRayY - py) + (xRayX - px) * (xRayX - px)
   );
-
   if (yLenght >= xLenght) {
     finalDistance = xLenght;
-
     xHit = true;
     yHit = false;
-
-    /*  ctx.strokeStyle = "#077E2B";
-    ctx.fillStyle = "#077E2B";
-    ctx.beginPath();
-    ctx.moveTo(px, py);
-    ctx.lineTo(xRayX, xRayY);
-    ctx.lineWidth = 3;
-    ctx.stroke();*/
-  } else if (yLenght < xLenght) {
+  }
+  else if (yLenght < xLenght) {
     finalDistance = yLenght;
 
     yHit = true;
     xHit = false;
-
-    /*ctx.strokeStyle = "#12DD3A";
-    ctx.fillStyle = "#12DD3A";
-    ctx.beginPath();
-    ctx.moveTo(px, py);
-    ctx.lineTo(yRayX, yRayY);
-    ctx.lineWidth = 3;
-    ctx.stroke();*/
   }
   finalDistance *= Math.cos(pa - ra);
   drawColumn(finalDistance);
 }
 
-//let projectionPlane = (ctx.canvas.width/2/Math.tan(90))
-
 let imgO;
+let texture;
 
 function drawColumn(finDistance) {
   let columnHeight = (mapS * ctx.canvas.height) / finDistance;
-  //mapS*ctx.canvas.height / finDistance/(Math.tan((90*dgr - 0.00000000000001)/2)/Math.cos(45*dgr))
-  /* if (columnHeight > ctx.canvas.height) {
-    columnHeight = ctx.canvas.height;
-  }*/
   if (columnHeight < 0) {
     columnHeight = 0;
   }
   //let width = 1;
   let columnO = 0.5 * (ctx.canvas.height - columnHeight);
+  let x;
+  texture = wall2;
 
-  //ctx.strokeStyle = "lime";
-  /*ctx.beginPath();
-  ctx.moveTo(r * width, columnO);
-  ctx.lineTo(r * width, columnHeight + columnO);
-  ctx.lineWidth = width;
-  ctx.stroke();
-*/
 
+  //junk
   if (xHit) {
-    imgO = xRayY % mapS;
+    mrX = Math.floor(xRayX / mapS) + directionX;
+    mrY = Math.floor(xRayY / mapS);
+    setTexture();
+
+    if (xRayY > 0) {
+      imgO = (xRayY % mapS);
+    }
+    if (directionX == 0) {
+      x = (texture.height - 1) - Math.floor((imgO * (texture.height) / mapS));
+    }
+    else if (directionX == -1) {
+      x = Math.floor((imgO * (texture.height) / mapS));
+    }
+    ctx.globalAlpha = Math.min(0.8, (0.8 * columnHeight * 3) / ctx.canvas.height);
+
   } else if (yHit) {
-    imgO = yRayX % mapS;
+    mrX = Math.floor(yRayX / mapS);
+    mrY = Math.floor(yRayY / mapS) + directionY;
+    setTexture();
+
+    if (yRayX > 0) {
+      imgO = (yRayX % mapS);
+      if (directionY == -1) {
+        x = (texture.height - 1) - Math.floor((imgO * (texture.height) / mapS));
+      }
+      else if (directionY == 0) {
+        x = Math.floor((imgO * (texture.height) / mapS));
+      }
+    }
+    ctx.globalAlpha = Math.min(1, (columnHeight * 3) / ctx.canvas.height);
   }
-  ctx.drawImage(
-    texture1,
-    (imgO * 624) / mapS + 1,
-    0,
-    5,
-    626,
-    r,
-    columnO,
-    5,
-    columnHeight
-  );
 
-  /*for (let i = 0; i < columnHeight; i++){
-  ctx.fillStyle = getRandomColor();
-  ctx.fillRect(r, columnO+i, 2, 2);
-  }*/
+
+
+  ctx.drawImage(texture,
+    x, 0, 1, texture.height,
+    r, columnO, 1, columnHeight);
+  ctx.globalAlpha = 1;
+
+
 }
 
-function getRandomColor() {
-  var letters = "0123456789ABCDEF";
-  var color = "#";
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
+function setTexture() {
+  switch (map[mrY][mrX]) {
+    case "@":
+      texture = wall1;
+      break;
+    case "#":
+      texture = wall2;
+      break;
   }
-  return color;
 }
 
-//antialiasing
-function colorX(x) {
-  return x;
-}
-function colorY(y) {
-  return y;
-}
+
