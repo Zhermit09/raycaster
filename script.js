@@ -109,10 +109,18 @@ window.addEventListener("keydown", (event) => {
             backwards = true;
             break;
         case "Escape":
+            left = false;
+            forward = false;
+            right = false;
+            backwards = false;
             windowScreen();
             break;
         case "f":
         case "F":
+            left = false;
+            forward = false;
+            right = false;
+            backwards = false;
             fullScreen();
             break;
     }
