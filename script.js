@@ -3,13 +3,22 @@
 
 let c = document.querySelector("#myCanvas");
 let ctx = c.getContext("2d");
-ctx.canvas.width = window.innerWidth;
-ctx.canvas.height = window.innerHeight;
+ctx.canvas.width = window.innerWidth / 1.3714;
+ctx.canvas.height = window.innerWidth * 0.4109;
+let fullScr = false;
 
 let wall1 = document.createElement("img");
 wall1.src = "./images/wall.jpg";
 let wall2 = document.createElement("img");
 wall2.src = "./images/cool.jpg";
+let wall3 = document.createElement("img");
+wall3.src = "./images/c.jpg";
+let wall4 = document.createElement("img");
+wall4.src = "./images/hive.png";
+let wall5 = document.createElement("img");
+wall5.src = "./images/water.jpg";
+let wall6 = document.createElement("img");
+wall6.src = "./images/keyboard.png";
 
 let canvasHalfWidth = ctx.canvas.width / 2;
 
@@ -17,7 +26,7 @@ let fps;
 let t1 = 0, deltaTime = 0;
 let timeDraw = 0, fpsDraw = 0;
 
-let px = 1100, py = 1100, pa = 0.25 * Math.PI;
+let px = 8170, py = 1100, pa = 0.5 * Math.PI;
 let pDy = Math.sin(pa), pDx = Math.cos(pa);
 let backwards = false, forward = false, left = false, right = false;
 
@@ -37,10 +46,10 @@ let map = [
     ["#", "-", "#", "-", "#", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "@",],
     ["#", "-", "#", "-", "-", "-", "#", "-", "-", "@", "-", "@", "-", "@", "-", "@",],
     ["#", "-", "#", "-", "#", "-", "-", "-", "-", "-", "-", "-", "-", "@", "-", "@",],
-    ["#", "-", "-", "-", "#", "-", "-", "-", "-", "-", "-", "@", "-", "@", "-", "@",],
-    ["#", "-", "#", "-", "#", "-", "-", "#", "@", "-", "-", "@", "-", "-", "-", "@",],
-    ["#", "-", "#", "-", "#", "-", "#", "#", "@", "@", "-", "@", "-", "@", "-", "@",],
-    ["#", "-", "#", "-", "-", "-", "-", "#", "@", "-", "-", "-", "-", "@", "-", "@",],
+    ["#", "-", "-", "-", "#", "-", "!", "-", "-", "%", "-", "@", "-", "@", "-", "@",],
+    ["#", "-", "#", "-", "#", "-", "-", "-", "-", "-", "-", "@", "-", "-", "-", "@",],
+    ["#", "-", "#", "-", "#", "-", "&", "-", "-", "/", "-", "@", "-", "@", "-", "@",],
+    ["#", "-", "#", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@", "-", "@",],
     ["#", "-", "#", "#", "#", "-", "-", "-", "-", "-", "-", "@", "@", "@", "-", "@",],
     ["#", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "@",],
     ["#", "#", "#", "#", "#", "#", "#", "#", "@", "@", "@", "@", "@", "@", "@", "@",],
@@ -99,8 +108,54 @@ window.addEventListener("keydown", (event) => {
         case "ArrowDown":
             backwards = true;
             break;
+        case "Escape":
+            windowScreen();
+            break;
+        case "f":
+        case "F":
+            fullScreen();
+            break;
     }
 })
+
+window.addEventListener('resize', setCanvasSize);
+
+function setCanvasSize() {
+    if (fullScr) {
+        ctx.canvas.width = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+
+    } else {
+        ctx.canvas.width = window.innerWidth / 1.3714;
+        ctx.canvas.height = window.innerWidth * 0.4109;
+    }
+    canvasHalfWidth = ctx.canvas.width / 2;
+    getRayAngle();
+}
+
+function fullScreen() {
+    fullScr = true;
+    ctx.canvas.width = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+    c.style.margin = "0";
+    c.style.border = "none";
+    c.style.borderRadius = "0";
+    c.style.position = "absolute";
+    t1 = 0;
+    setCanvasSize();
+}
+
+function windowScreen() {
+    fullScr = false;
+    ctx.canvas.width = window.innerWidth / 1.3714;
+    ctx.canvas.height = window.innerWidth * 0.4109;
+    c.style.margin = "4vh 0 1vh";
+    c.style.border = "solid #B200DE 3px";
+    c.style.borderRadius = "10px";
+    c.style.position = "initial";
+    t1 = 0;
+    setCanvasSize();
+}
 
 window.addEventListener("keyup", (event) => {
     switch (event.key) {
@@ -162,8 +217,8 @@ function fPS() {
 }
 
 function drawFPS() {
-    //Uppdaterar fps bara varje 50ms annars är talen galna
-    if (performance.now() - timeDraw > 50) {
+    //Uppdaterar fps bara varje 100ms annars är talen galna
+    if (performance.now() - timeDraw > 100) {
         timeDraw = performance.now();
         fpsDraw = fps;
     }
@@ -331,6 +386,18 @@ function setTexture() {
             break;
         case "#":
             texture = wall2;
+            break;
+        case "!":
+            texture = wall3;
+            break;
+        case "%":
+            texture = wall4;
+            break;
+        case "/":
+            texture = wall5;
+            break;
+        case "&":
+            texture = wall6;
             break;
     }
 }

@@ -4,14 +4,52 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="style.css"/>
+    <link rel=icon type="image/png" href="./images/prism.png">
     <title>Document</title>
 </head>
 
 <body onload="preLoad()">
+<a href="https://github.com/Zhermit09" target="_blank">Git<i class="fab fa-github"></i></a>
+<header>
+    <h1>Ray</h1>
+    <img src="./images/prism.png" alt="picture of a prism"/>
+    <h1>Caster</h1>
 
+</header>
+
+<div id="leftPanel">
+    <div class="box">
+    <p>Hello There!</p>
+    <p>This is a raycaster, a program where you... uhm... cast rays...! And then get this.
+    </p>
+    <p>It was written in vanilla JavaScript and uses a technique called "<a href="https://lodev.org/cgtutor/raycasting.html">Raycasting</a>".
+    </p>
+
+    <p>If you are interested and want to learn more or maybe even create one yourself,
+        <a href="https://www.youtube.com/watch?v=gYRrGTC7GtA is what i used as reference.">here</a>
+        is what i used as reference.
+    </p>
+    <p> However this guide cuts a LOT of corners so be mindful of that.</p>
+    </div>
+</div>
 <canvas id="myCanvas">
     Your browser does not support the HTML canvas tag.
 </canvas>
+<div id="rightPanel">
+    <h2>Controls</h2>
+    <div class="box">
+    <p>Full Screen:</p>
+    <p>| F |</p>
+    <p>Exit Full Screen:</p>
+    <p>| Esc |</p>
+    <p>True Full Screen:</p>
+    <p>| F | + | F11 |</p>
+    <p>Movement:</p>
+    <img src="./images/keyboard.png" alt="Picture of up, down, left and right arrows">
+    </div>
+</div>
+
 <script src="script.js"></script>
+<script src="https://kit.fontawesome.com/f7f93b2485.js" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,24 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Serif&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&display=swap');
+
 html {
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  background-color: gray;
+    scroll-behavior: smooth;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: rgb(74, 74, 74);
+    background: linear-gradient(
+            -72deg,
+            #4f4f4f,
+            #c3c3c3 4%,
+            #4f4f4f 16%,
+            #c3c3c3 12%,
+            #262626 16%,
+            #4f4f4f 20%,
+            #c3c3c3 24%,
+            #c3c3c3 28%,
+            #4f4f4f 32%,
+            #c3c3c3 36%,
+            #4f4f4f 40%,
+            #000000 44%,
+            #4f4f4f 55%,
+            #c3c3c3 52%,
+            #4f4f4f 56%,
+            #c3c3c3 60%,
+            #262626 64%,
+            #4f4f4f 68%,
+            #c3c3c3 72%,
+            #c3c3c3 76%,
+            #4f4f4f 85%,
+            #c3c3c3 77%,
+            #4f4f4f 90%,
+            #000000
+    );
 }
+
 body {
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: black;
+
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    justify-items: center;
+    grid-template-rows:11vh auto;
+    grid-template-columns: 12.5vw auto 12.5vw;
+
 }
+
+header {
+    width: 100%;
+    height: 11vh;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: black;
+    border-bottom: #b200de 3px solid;
+    grid-row-start: 1;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+header img {
+    height: 5rem;
+    border: gold solid 0;
+    border-radius: 100%;
+    background-image: linear-gradient(
+            96deg,
+            #555564,
+            #c63591,
+            #ffffff,
+            #555564,
+            #ffffff,
+            #c63591,
+            #555564,
+            #ffffff,
+            #c63591,
+            #555564);
+    margin: 7px;
+    padding: 3px;
+}
+
+h1 {
+    font-family: "Grenze Gotisch", serif;
+    background: linear-gradient(
+            120deg,
+            #555564,
+            #c63591,
+            #ffffff,
+            #555564,
+            #ffffff,
+            #c63591,
+            #555564,
+            #ffffff,
+            #c63591,
+            #555564);
+    font-size: 4rem;
+    margin: auto 0;
+    padding: 15px 0;
+    line-height: 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body > a {
+
+    padding: 0 10px;
+    text-shadow: 0 0 30px #c63591;
+    font-size: 2.5rem;
+    background: linear-gradient(
+            120deg,
+            #555564 0%,
+            #c63591,
+            #ffffff,
+            #555564,
+            #ffffff,
+            #c63591,
+            #555564,
+            #ffffff,
+            #c63591,
+            #555564 100%);
+    position: fixed;
+    text-decoration: none;
+    right: 1vw;
+    top: 3.1vh;
+    font-family: PT Serif, "serif";
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+
+}
+
+body > a:hover {
+
+    text-shadow: none;
+    box-shadow: 0 0 30px #ffffff;
+    border: gold solid 0;
+    border-radius: 5000px;
+    animation: hover-animation 6s infinite;
+    animation-direction: alternate-reverse;
+
+}
+
+@keyframes hover-animation {
+    0% {
+        box-shadow: 0 0 30px #555564;
+        background-position: 2vw;
+
+    }
+    10% {
+        box-shadow: 0 0 30px #c63591;
+
+    }
+    20% {
+        box-shadow: 0 0 30px #ffffff;
+
+    }
+    30% {
+        box-shadow: 0 0 30px #555564;
+        background-position: 0;
+    }
+    40% {
+        box-shadow: 0 0 30px #ffffff;
+
+    }
+    60% {
+        box-shadow: 0 0 30px #c63591;
+        background-position: 2vw;
+
+    }
+    70% {
+        box-shadow: 0 0 30px #555564;
+
+    }
+    80% {
+        box-shadow: 0 0 30px #ffffff;
+
+    }
+    90% {
+        box-shadow: 0 0 30px #c63591;
+
+    }
+    100% {
+        box-shadow: 0 0 30px #555564;
+        background-position: 0;
+
+    }
+}
+
+
+i {
+    margin: 4px;
+}
+
+#leftPanel {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    border: solid #B200DE 3px;
+    border-radius: 30px;
+    background: linear-gradient(
+            120deg,
+            #c63591 0%,
+            #ffffff,
+            #555564,
+            #c63591 100%);
+    margin: 0 0 0 1vw;
+    height: 40vh;
+    width: 11vw;
+}
+
+#rightPanel {
+    border: solid #B200DE 3px;
+    border-radius: 30px;
+    background: linear-gradient(
+            120deg,
+            #c63591 0%,
+            #ffffff,
+            #555564,
+            #c63591 100%);
+    margin: 0 1vw 0 0;
+    height: 40vh;
+    width: 11vw;
+}
+
+#rightPanel > .box > img {
+    margin: 0 13%;
+    width: 70%;
+
+    padding: 1%;
+}
+
+#leftPanel > .box > p {
+    color: white;
+    text-shadow: 0 0 5px lime;
+    font-family: PT Serif, serif;
+    font-size: 1rem;
+    line-height: 1.1;
+    margin:  10px 0;
+}
+
+#rightPanel > .box > p {
+    text-align: center;
+    color: white;
+    text-shadow: 0 0 5px lime;
+    font-family: PT Serif, serif;
+    font-size: 1rem;
+    max-width: 30ch;
+    line-height: 1.1;
+    margin: 5px;
+}
+
+.box{
+    background: #181818;
+    margin: 0 10px;
+    border-radius: 20px;
+    padding: 10px 0;
+
+}
+
 #myCanvas {
-  margin: 0;
-  padding: 0;
-  background-color: black;
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: rgb(7, 126, 43);
+    margin: 4vh 0 1vh;
+    padding: 0;
+    background-color: black;
+    border: solid #B200DE 3px;
+    border-radius: 10px;
+    grid-row-start: 2;
+    grid-column-start: 2;
 }
+
+p > a{
+    color: orange;
+    text-decoration: none;
+    text-shadow: 0 0 5px #ff0000;
+}
+
+p > a:hover{
+    color: #d000ff;
+    text-shadow: 0 0 5px red;
+}
+
+h2 {
+    text-align: center;
+    font-family: "Cinzel Decorative", serif;
+    color: black;
+    text-shadow: 0 0 1px #8100ff;
+    margin: 9px 0;
+}
+
+
+
