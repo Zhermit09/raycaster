@@ -242,14 +242,14 @@ function drawFPS() {
 }
 
 function angleMax(radian) {
-    //Adderar eller substraherar 2 PI för att göra det lättare att läsa
+    //Adderar eller subtraherar 2 PI för att göra det lättare att läsa
     if (radian >= 2 * Math.PI) radian -= 2 * Math.PI;
     else if (radian <= 0) radian += 2 * Math.PI;
     return radian;
 }
 
 function rayCaster() {
-    /*Här börjar en mess med olika utträckningar >:(
+    /*Här börjar en mess med olika uträkningar >:(
     Kort sagt vad jag gör är att jag kastar ut 2 rays, ena kan träffa
     bara saker på x-axel medan andra bara på y-axel, sen kollar jag vilken
     som träffar tidigast och där blir väggen som jag ska rita ut*/
@@ -257,7 +257,7 @@ function rayCaster() {
 
     //Kastar ut en ray för varje pixel på x-axel i min canvas
     for (r = 0; r < ctx.canvas.width; r += 1) {
-        //Dof är depth of field (en limit på  hur många check man får göra)
+        //Dof är depth of field (en limit på hur många check man får göra)
         let dofY = 0;
         let diffY = py % mapS;
 
@@ -270,7 +270,7 @@ function rayCaster() {
 
         let tanRa = Math.tan(ra);
 
-        /*Här under räknar jag ut x & y kordinater där ray träffar en väg i rutan man befinner sig i,
+        /*Här under räknar jag ut x & y koordinater där ray träffar en väg i rutan man befinner sig i,
         samt x & y offset som behövs för att kolla efter väggar utanför rutan,
          det görs både för x & y ray (aka 2 gånger)*/
 
@@ -295,7 +295,7 @@ function rayCaster() {
             dofY = 16;
             directionY = 0;
         }
-        //Translerar kordinater av ray till kordinater som kan sättas in i map arrayen
+        //Translerar koordinater av ray till koordinater som kan sättas in i map arrayen
         mrX = Math.floor(rayX / mapS);
         mrY = Math.floor(rayY / mapS) + directionY;
 
@@ -344,7 +344,7 @@ function rayCaster() {
 }
 
 function wallDetect(dofW, dX, dY) {
-    //Det här methoden forsätter att lägga till offset och checka efter en vägg
+    //Det här metoden fortsätter att lägga till offset och checka efter en vägg
     //till den träffar en vägg eller når limit
     while (dofW < 16) {
         if (0 <= mrX && 0 <= mrY && mrX < mapX && mrY < mapY && map[mrY][mrX] !== "-") {
@@ -365,7 +365,7 @@ function wallDetect(dofW, dX, dY) {
 
 
 function shortestRay() {
-    //Pitagoras sats för att räkna ut den kortsate rayen
+    //Pytagoras sats för att räkna ut den kortaste rayen
     let yLength = Math.sqrt(
         (rayY2 - py) * (rayY2 - py) + (rayX2 - px) * (rayX2 - px)
     );
@@ -387,7 +387,7 @@ function shortestRay() {
 }
 
 function setTexture() {
-    //Väljer textur basserat på vilken symbol som finns i map arrayen
+    //Väljer textur baserat på vilken symbol som finns i map arrayen
     switch (map[mrY][mrX]) {
         case "@":
             texture = wall1;
@@ -420,19 +420,19 @@ function drawColumn(finDistance) {
 
     //Här är en till magisk mess som flippar på texturer beroende på vart man kollar
     if (xHit) {
-        //Tar fram igen vädre där ray träffar väggen
+        //Tar fram igen värde där ray träffar väggen
         mrX = Math.floor(rayX / mapS) + directionX;
         mrY = Math.floor(rayY / mapS);
         setTexture();
 
-        //Translerar kordinater från skärmen till kordinater på texturen (så att man kan klippa ut rätt bit av texturen)
+        //Translerar koordinater från skärmen till koordinater på texturen (så att man kan klippa ut rätt bit av texturen)
         imgO = (rayY % mapS);
 
         //Flippar på x om texturen behövs speglas
         if (directionX === 0) x = (texture.height - 1) - Math.floor((imgO * (texture.height) / mapS));
         else if (directionX === -1) x = Math.floor((imgO * (texture.height) / mapS));
 
-        //Aplpha blandar texturen med backgrunden och får det sakta att försvinna desto länge bort man är
+        //Alpha blandar texturen med bakgrunden och får det sakta att försvinna desto länge bort man är
         //X-axel har från början en lägre alpha för att göra x-axel lite mörkare
         ctx.globalAlpha = Math.min(0.8, (0.8 * columnHeight * 2) / ctx.canvas.height);
     }
@@ -450,7 +450,7 @@ function drawColumn(finDistance) {
         //Ljusare alpha för y-axel
         ctx.globalAlpha = Math.min(1, (columnHeight * 2) / ctx.canvas.height);
     }
-    //Finish line, allt mess var bara för den den här funktionen, nu bara 1919 gånger kvar ;)
+    //Finish line, allt mess var bara för den här funktionen, nu bara 1919 gånger kvar ;)
     //Klipper ut en column ur texturen och ritar ut den på skärmen, så görs för varje pixel på canvasen
     ctx.drawImage(texture,
         x, 0, 1, texture.height,
